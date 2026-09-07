@@ -62,3 +62,7 @@ VOW is a hackathon MVP for BOT Chain: two wallets make reciprocal commitments, l
 - Do not deploy the contract until the complete mandatory contract test suite has zero failures.
 - Do not silently redeploy after frontend integration has started.
 - Record deployed network, chain ID, contract address, deployment transaction, deployer, failure sink, and explorer URL.
+
+Treat `PRD.md`, `TECHNICAL-SPEC.md`, `DESIGN.md`,
+`IMPLEMENTATION-GATES.md`, `LOOP-ENGINEERING.md`,
+and `HERMES-MASTER-PROMPT.md` as source of truth.
