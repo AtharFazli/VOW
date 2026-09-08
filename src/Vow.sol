@@ -125,6 +125,37 @@ contract Vow {
         emit DisputeResolved(vowId, participant, proofValid);
     }
 
+    function _resolveParticipantTimeouts(Vow storage vow) internal {
+        if (vow.status != VowStatus.ACTIVE) return;
+
+        if (block.timestamp > vow.deliveryDeadline) {
+            if (vow.creatorStatus == ParticipantStatus.PENDING) {
+                vow.creatorStatus = ParticipantStatus.FAILED;
+            }
+            if (vow.partnerStatus == ParticipantStatus.PENDING) {
+                vow.partnerStatus = ParticipantStatus.FAILED;
+            }
+        }
+
+        if (block.timestamp > vow.reviewDeadline) {
+            if (vow.creatorStatus == ParticipantStatus.PROOF_SUBMITTED) {
+                vow.creatorStatus = ParticipantStatus.SUCCESS;
+            }
+            if (vow.partnerStatus == ParticipantStatus.PROOF_SUBMITTED) {
+                vow.partnerStatus = ParticipantStatus.SUCCESS;
+            }
+        }
+
+        if (block.timestamp > vow.disputeDeadline) {
+            if (vow.creatorStatus == ParticipantStatus.DISPUTED) {
+                vow.creatorStatus = ParticipantStatus.UNRESOLVED;
+            }
+            if (vow.partnerStatus == ParticipantStatus.DISPUTED) {
+                vow.partnerStatus = ParticipantStatus.UNRESOLVED;
+            }
+        }
+    }
+
     error VowNotReadyForSettlement();
     error NothingToWithdraw();
     error NativeTransferFailed();
