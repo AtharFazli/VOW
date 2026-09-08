@@ -56,8 +56,54 @@ contract Vow {
     error ProofAlreadySubmitted();
     error ProofNotSubmitted();
     error InvalidProof();
+    error EmptyDisputeReason();
     error AlreadyReviewed();
     error NotDisputed();
+
+    function reviewProof(uint256 vowId, address participant, bool approved, string calldata disputeReason) external {
+        Vow storage vow = vows[vowId];
+        if (vow.creator == address(0)) revert InvalidVow();
+        if (vow.status != VowStatus.ACTIVE) revert InvalidVowStatus();
+        if (block.timestamp > vow.reviewDeadline) revert ReviewDeadlinePassed();
+
+        bool targetIsCreator = participant == vow.creator;
+        bool targetIsPartner = participant == vow.partner;
+        if (!targetIsCreator && !targetIsPartner) revert Unauthorized();
+        if (msg.sender == participant) revert Unauthorized();
+        if (targetIsCreator) {
+            if (msg.sender != vow.partner) revert Unauthorized();
+            if (vow.creatorStatus == ParticipantStatus.SUCCESS || vow.creatorStatus == ParticipantStatus.DISPUTED) {
+                revert AlreadyReviewed();
+            }
+            if (vow.creatorStatus != ParticipantStatus.PROOF_SUBMITTED) revert ProofNotSubmitted();
+            if (approved) {
+                vow.creatorStatus = ParticipantStatus.SUCCESS;
+                emit ProofApproved(vowId, participant, msg.sender);
+            } else {
+                if (bytes(disputeReason).length == 0) revert EmptyDisputeReason();
+                vow.creatorStatus = ParticipantStatus.DISPUTED;
+                vow.creatorDisputeReason = disputeReason;
+                emit ProofDisputed(vowId, participant, msg.sender, disputeReason);
+            }
+            return;
+        }
+
+        if (msg.sender != vow.creator) revert Unauthorized();
+        if (vow.partnerStatus == ParticipantStatus.SUCCESS || vow.partnerStatus == ParticipantStatus.DISPUTED) {
+            revert AlreadyReviewed();
+        }
+        if (vow.partnerStatus != ParticipantStatus.PROOF_SUBMITTED) revert ProofNotSubmitted();
+        if (approved) {
+            vow.partnerStatus = ParticipantStatus.SUCCESS;
+            emit ProofApproved(vowId, participant, msg.sender);
+        } else {
+            if (bytes(disputeReason).length == 0) revert EmptyDisputeReason();
+            vow.partnerStatus = ParticipantStatus.DISPUTED;
+            vow.partnerDisputeReason = disputeReason;
+            emit ProofDisputed(vowId, participant, msg.sender, disputeReason);
+        }
+    }
+
     error VowNotReadyForSettlement();
     error NothingToWithdraw();
     error NativeTransferFailed();
