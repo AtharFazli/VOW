@@ -90,4 +90,52 @@ contract Vow {
         if (failureSink_ == address(0)) revert ZeroAddress();
         failureSink = failureSink_;
     }
+
+    function createVow(
+        address partner,
+        address arbiter,
+        string calldata creatorPromise,
+        string calldata partnerPromise,
+        uint64 acceptDeadline,
+        uint64 deliveryDeadline,
+        uint64 reviewDeadline,
+        uint64 disputeDeadline
+    ) external payable returns (uint256 vowId) {
+        if (partner == address(0) || partner == msg.sender) revert InvalidPartner();
+        if (arbiter != address(0) && (arbiter == msg.sender || arbiter == partner)) revert InvalidArbiter();
+        if (msg.value == 0) revert InvalidStake();
+        if (bytes(creatorPromise).length == 0 || bytes(partnerPromise).length == 0) revert EmptyPromise();
+        if (acceptDeadline <= block.timestamp) revert AcceptDeadlinePassed();
+        if (
+            acceptDeadline >= deliveryDeadline || deliveryDeadline >= reviewDeadline
+                || reviewDeadline >= disputeDeadline
+        ) {
+            revert InvalidDeadlineOrder();
+        }
+
+        vowId = nextVowId++;
+        Vow storage vow = vows[vowId];
+        vow.creator = msg.sender;
+        vow.partner = partner;
+        vow.arbiter = arbiter;
+        vow.stake = msg.value;
+        vow.acceptDeadline = acceptDeadline;
+        vow.deliveryDeadline = deliveryDeadline;
+        vow.reviewDeadline = reviewDeadline;
+        vow.disputeDeadline = disputeDeadline;
+        vow.creatorPromise = creatorPromise;
+        vow.partnerPromise = partnerPromise;
+        vow.creatorStatus = ParticipantStatus.PENDING;
+        vow.partnerStatus = ParticipantStatus.PENDING;
+        vow.status = VowStatus.PROPOSED;
+
+        userVowIds[msg.sender].push(vowId);
+        userVowIds[partner].push(vowId);
+
+        emit VowCreated(vowId, msg.sender, partner, msg.value, arbiter);
+    }
+
+    function getUserVowIds(address user) external view returns (uint256[] memory) {
+        return userVowIds[user];
+    }
 }
