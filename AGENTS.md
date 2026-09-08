@@ -66,3 +66,63 @@ VOW is a hackathon MVP for BOT Chain: two wallets make reciprocal commitments, l
 Treat `PRD.md`, `TECHNICAL-SPEC.md`, `DESIGN.md`,
 `IMPLEMENTATION-GATES.md`, `LOOP-ENGINEERING.md`,
 and `HERMES-MASTER-PROMPT.md` as source of truth.
+
+## Git workflow
+
+Hermes owns the Git workflow during implementation.
+
+At the beginning of every gate:
+
+1. Run `git status --short --branch`.
+2. Inspect the current branch and working tree.
+3. Do not overwrite unrelated user changes.
+4. If unexpected pre-existing changes exist, stop and report them before implementation.
+
+During a gate:
+
+- Work only on files required by the current gate.
+- Never use `git reset --hard`.
+- Never use `git clean -fd`.
+- Never force push.
+- Never rewrite published history.
+- Never discard user changes.
+- Do not switch branches unless explicitly required.
+- Do not commit secrets, `.env` credentials, private keys, seed phrases, or generated build artifacts.
+- Keep generated Foundry directories such as `out/` and `cache/` untracked.
+
+After implementation:
+
+1. Run all verification required by the gate.
+2. Inspect `git diff`.
+3. Run `git status --short`.
+4. Confirm the diff contains only current-gate work.
+
+If and only if the gate is PASS:
+
+1. Stage only files belonging to the gate.
+2. Create exactly one checkpoint commit for the gate.
+3. Use a concise Conventional Commit message.
+4. Record the resulting commit hash in the gate report.
+5. Verify the working tree is clean after the commit.
+
+Recommended commit style:
+
+- Gate B: `feat: add VOW contract skeleton`
+- Gate C: `feat: implement VOW creation`
+- Gate D: `feat: implement VOW acceptance`
+- Gate E: `feat: implement proof submission`
+- Gate F: `feat: implement proof review`
+- Fix-only gate: `fix: <specific issue>`
+- Documentation-only change: `docs: <specific change>`
+
+If the gate is FAIL or BLOCKED:
+
+- Do not create a successful gate checkpoint commit.
+- Preserve the working tree.
+- Report all changed/untracked files.
+- Stop and wait for instructions.
+
+Never push automatically unless explicitly authorized by the user.
+
+A local commit is allowed after a verified PASS.
+Remote push requires explicit authorization.
