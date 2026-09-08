@@ -21,7 +21,9 @@ contract VowCreateTest {
     address constant FAILURE_SINK = address(0xFEE1);
     uint256 constant STAKE = 1 ether;
 
-    event VowCreated(uint256 indexed vowId, address indexed creator, address indexed partner, uint256 stake, address arbiter);
+    event VowCreated(
+        uint256 indexed vowId, address indexed creator, address indexed partner, uint256 stake, address arbiter
+    );
 
     function _newVow() internal returns (Vow) {
         return new Vow(FAILURE_SINK);
@@ -42,7 +44,16 @@ contract VowCreateTest {
     ) internal returns (uint256 vowId) {
         vm.deal(creator, stake);
         vm.prank(creator);
-        vowId = vow.createVow{value: stake}(partner, arbiter, creatorPromise, partnerPromise, acceptDeadline, deliveryDeadline, reviewDeadline, disputeDeadline);
+        vowId = vow.createVow{value: stake}(
+            partner,
+            arbiter,
+            creatorPromise,
+            partnerPromise,
+            acceptDeadline,
+            deliveryDeadline,
+            reviewDeadline,
+            disputeDeadline
+        );
     }
 
     function _expectCreateRevert(
@@ -61,7 +72,16 @@ contract VowCreateTest {
         vm.deal(CREATOR, stake);
         vm.expectRevert(revertData);
         vm.prank(CREATOR);
-        vow.createVow{value: stake}(partner, arbiter, creatorPromise, partnerPromise, acceptDeadline, deliveryDeadline, reviewDeadline, disputeDeadline);
+        vow.createVow{value: stake}(
+            partner,
+            arbiter,
+            creatorPromise,
+            partnerPromise,
+            acceptDeadline,
+            deliveryDeadline,
+            reviewDeadline,
+            disputeDeadline
+        );
     }
 
     function _vowData(Vow vow, uint256 vowId) internal view returns (bytes memory data) {
@@ -138,7 +158,9 @@ contract VowCreateTest {
         vm.expectEmit(true, true, true, true);
         emit VowCreated(0, CREATOR, PARTNER, STAKE, ARBITER);
 
-        uint256 vowId = _create(vow, CREATOR, PARTNER, ARBITER, STAKE, "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040);
+        uint256 vowId = _create(
+            vow, CREATOR, PARTNER, ARBITER, STAKE, "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040
+        );
 
         require(vowId == 0, "vowId");
         require(vow.nextVowId() == 1, "nextVowId");
@@ -155,8 +177,10 @@ contract VowCreateTest {
         vm.warp(2_000);
         Vow vow = _newVow();
 
-        uint256 firstId = _create(vow, CREATOR, PARTNER, address(0), STAKE, "First", "Second", 2_010, 2_020, 2_030, 2_040);
-        uint256 secondId = _create(vow, CREATOR, PARTNER_2, address(0), STAKE, "Third", "Fourth", 2_011, 2_021, 2_031, 2_041);
+        uint256 firstId =
+            _create(vow, CREATOR, PARTNER, address(0), STAKE, "First", "Second", 2_010, 2_020, 2_030, 2_040);
+        uint256 secondId =
+            _create(vow, CREATOR, PARTNER_2, address(0), STAKE, "Third", "Fourth", 2_011, 2_021, 2_031, 2_041);
 
         require(firstId == 0, "firstId");
         require(secondId == 1, "secondId");
@@ -173,62 +197,194 @@ contract VowCreateTest {
 
     function test_CreateVowRevertZeroPartner() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidPartner.selector), address(0), ARBITER, "Ship frontend", "Deploy contract", 3_010, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidPartner.selector),
+            address(0),
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertSelfPartner() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidPartner.selector), CREATOR, ARBITER, "Ship frontend", "Deploy contract", 3_010, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidPartner.selector),
+            CREATOR,
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertZeroStake() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidStake.selector), PARTNER, ARBITER, "Ship frontend", "Deploy contract", 3_010, 3_020, 3_030, 3_040, 0);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidStake.selector),
+            PARTNER,
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_030,
+            3_040,
+            0
+        );
     }
 
     function test_CreateVowRevertEmptyCreatorPromise() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.EmptyPromise.selector), PARTNER, ARBITER, "", "Deploy contract", 3_010, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.EmptyPromise.selector),
+            PARTNER,
+            ARBITER,
+            "",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertEmptyPartnerPromise() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.EmptyPromise.selector), PARTNER, ARBITER, "Ship frontend", "", 3_010, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.EmptyPromise.selector),
+            PARTNER,
+            ARBITER,
+            "Ship frontend",
+            "",
+            3_010,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertAcceptDeadlineEqualNow() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.AcceptDeadlinePassed.selector), PARTNER, ARBITER, "Ship frontend", "Deploy contract", 3_000, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.AcceptDeadlinePassed.selector),
+            PARTNER,
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            3_000,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertAcceptDeadlinePast() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.AcceptDeadlinePassed.selector), PARTNER, ARBITER, "Ship frontend", "Deploy contract", 2_999, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.AcceptDeadlinePassed.selector),
+            PARTNER,
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            2_999,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertInvalidDeadlineOrderAcceptEqualsDelivery() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidDeadlineOrder.selector), PARTNER, ARBITER, "Ship frontend", "Deploy contract", 3_010, 3_010, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidDeadlineOrder.selector),
+            PARTNER,
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_010,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertInvalidDeadlineOrderDeliveryEqualsReview() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidDeadlineOrder.selector), PARTNER, ARBITER, "Ship frontend", "Deploy contract", 3_010, 3_020, 3_020, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidDeadlineOrder.selector),
+            PARTNER,
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_020,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertInvalidDeadlineOrderReviewEqualsDispute() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidDeadlineOrder.selector), PARTNER, ARBITER, "Ship frontend", "Deploy contract", 3_010, 3_020, 3_030, 3_030, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidDeadlineOrder.selector),
+            PARTNER,
+            ARBITER,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_030,
+            3_030,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertArbiterIsCreator() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidArbiter.selector), PARTNER, CREATOR, "Ship frontend", "Deploy contract", 3_010, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidArbiter.selector),
+            PARTNER,
+            CREATOR,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 
     function test_CreateVowRevertArbiterIsPartner() public {
         vm.warp(3_000);
-        _expectCreateRevert(abi.encodeWithSelector(Vow.InvalidArbiter.selector), PARTNER, PARTNER, "Ship frontend", "Deploy contract", 3_010, 3_020, 3_030, 3_040, STAKE);
+        _expectCreateRevert(
+            abi.encodeWithSelector(Vow.InvalidArbiter.selector),
+            PARTNER,
+            PARTNER,
+            "Ship frontend",
+            "Deploy contract",
+            3_010,
+            3_020,
+            3_030,
+            3_040,
+            STAKE
+        );
     }
 }
 
@@ -250,7 +406,16 @@ contract VowAcceptTest {
     function _createProposedVow(Vow vow, uint64 acceptDeadline) internal returns (uint256 vowId) {
         vm.deal(CREATOR, STAKE);
         vm.prank(CREATOR);
-        vowId = vow.createVow{value: STAKE}(PARTNER, address(0), "Ship frontend", "Deploy contract", acceptDeadline, acceptDeadline + 10, acceptDeadline + 20, acceptDeadline + 30);
+        vowId = vow.createVow{value: STAKE}(
+            PARTNER,
+            address(0),
+            "Ship frontend",
+            "Deploy contract",
+            acceptDeadline,
+            acceptDeadline + 10,
+            acceptDeadline + 20,
+            acceptDeadline + 30
+        );
     }
 
     function _accept(Vow vow, address sender, uint256 vowId, uint256 value) internal {
@@ -259,7 +424,9 @@ contract VowAcceptTest {
         vow.acceptVow{value: value}(vowId);
     }
 
-    function _expectAcceptRevert(Vow vow, address sender, uint256 vowId, uint256 value, bytes memory revertData) internal {
+    function _expectAcceptRevert(Vow vow, address sender, uint256 vowId, uint256 value, bytes memory revertData)
+        internal
+    {
         vm.deal(sender, value);
         vm.expectRevert(revertData);
         vm.prank(sender);
@@ -479,7 +646,9 @@ contract VowProofTest {
         vow = _newVow();
         vm.deal(CREATOR, STAKE);
         vm.prank(CREATOR);
-        vowId = vow.createVow{value: STAKE}(PARTNER, address(0), "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040);
+        vowId = vow.createVow{value: STAKE}(
+            PARTNER, address(0), "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040
+        );
         vm.deal(PARTNER, STAKE);
         vm.prank(PARTNER);
         vow.acceptVow{value: STAKE}(vowId);
@@ -633,7 +802,9 @@ contract VowProofTest {
         Vow vow = _newVow();
         vm.deal(CREATOR, STAKE);
         vm.prank(CREATOR);
-        uint256 vowId = vow.createVow{value: STAKE}(PARTNER, address(0), "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040);
+        uint256 vowId = vow.createVow{value: STAKE}(
+            PARTNER, address(0), "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040
+        );
         _expectSubmitRevert(
             vow,
             CREATOR,
@@ -649,7 +820,9 @@ contract VowProofTest {
         string memory proofURI = "https://example.com/creator-proof";
         bytes32 proofHash = keccak256(bytes(proofURI));
         _submit(vow, CREATOR, vowId, proofURI, proofHash);
-        _expectSubmitRevert(vow, CREATOR, vowId, proofURI, proofHash, abi.encodeWithSelector(Vow.ProofAlreadySubmitted.selector));
+        _expectSubmitRevert(
+            vow, CREATOR, vowId, proofURI, proofHash, abi.encodeWithSelector(Vow.ProofAlreadySubmitted.selector)
+        );
     }
 
     function test_PartnerCannotSubmitTwice() public {
@@ -657,7 +830,9 @@ contract VowProofTest {
         string memory proofURI = "https://example.com/partner-proof";
         bytes32 proofHash = keccak256(bytes(proofURI));
         _submit(vow, PARTNER, vowId, proofURI, proofHash);
-        _expectSubmitRevert(vow, PARTNER, vowId, proofURI, proofHash, abi.encodeWithSelector(Vow.ProofAlreadySubmitted.selector));
+        _expectSubmitRevert(
+            vow, PARTNER, vowId, proofURI, proofHash, abi.encodeWithSelector(Vow.ProofAlreadySubmitted.selector)
+        );
     }
 
     function test_BeforeDeliveryDeadlineSucceeds() public {
@@ -693,12 +868,21 @@ contract VowProofTest {
 
     function test_EmptyURIFails() public {
         (Vow vow, uint256 vowId) = _activeVow();
-        _expectSubmitRevert(vow, CREATOR, vowId, "", keccak256(bytes("")), abi.encodeWithSelector(Vow.InvalidProof.selector));
+        _expectSubmitRevert(
+            vow, CREATOR, vowId, "", keccak256(bytes("")), abi.encodeWithSelector(Vow.InvalidProof.selector)
+        );
     }
 
     function test_ZeroHashFails() public {
         (Vow vow, uint256 vowId) = _activeVow();
-        _expectSubmitRevert(vow, CREATOR, vowId, "https://example.com/proof", bytes32(0), abi.encodeWithSelector(Vow.InvalidProof.selector));
+        _expectSubmitRevert(
+            vow,
+            CREATOR,
+            vowId,
+            "https://example.com/proof",
+            bytes32(0),
+            abi.encodeWithSelector(Vow.InvalidProof.selector)
+        );
     }
 
     function test_IncorrectHashFails() public {

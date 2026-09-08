@@ -104,6 +104,27 @@ contract Vow {
         }
     }
 
+    function resolveDispute(uint256 vowId, address participant, bool proofValid) external {
+        Vow storage vow = vows[vowId];
+        if (vow.creator == address(0)) revert InvalidVow();
+        if (vow.status != VowStatus.ACTIVE) revert InvalidVowStatus();
+        if (vow.arbiter == address(0) || msg.sender != vow.arbiter) revert Unauthorized();
+        if (msg.sender == participant) revert Unauthorized();
+        if (block.timestamp > vow.disputeDeadline) revert DisputeDeadlinePassed();
+
+        if (participant == vow.creator) {
+            if (vow.creatorStatus != ParticipantStatus.DISPUTED) revert NotDisputed();
+            vow.creatorStatus = proofValid ? ParticipantStatus.SUCCESS : ParticipantStatus.FAILED;
+        } else if (participant == vow.partner) {
+            if (vow.partnerStatus != ParticipantStatus.DISPUTED) revert NotDisputed();
+            vow.partnerStatus = proofValid ? ParticipantStatus.SUCCESS : ParticipantStatus.FAILED;
+        } else {
+            revert Unauthorized();
+        }
+
+        emit DisputeResolved(vowId, participant, proofValid);
+    }
+
     error VowNotReadyForSettlement();
     error NothingToWithdraw();
     error NativeTransferFailed();
