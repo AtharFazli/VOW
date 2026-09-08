@@ -458,3 +458,308 @@ contract VowAcceptTest {
         require(_status(_vowData(vow, vowId), 18) == Vow.VowStatus.ACTIVE, "status");
     }
 }
+
+contract VowProofTest {
+    Vm constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
+
+    address constant CREATOR = address(0xA11CE);
+    address constant PARTNER = address(0xB0B);
+    address constant OTHER = address(0xD0D);
+    address constant FAILURE_SINK = address(0xFEE1);
+    uint256 constant STAKE = 1 ether;
+
+    event ProofSubmitted(uint256 indexed vowId, address indexed participant, string proofURI, bytes32 proofHash);
+
+    function _newVow() internal returns (Vow) {
+        return new Vow(FAILURE_SINK);
+    }
+
+    function _activeVow() internal returns (Vow vow, uint256 vowId) {
+        vm.warp(1_000);
+        vow = _newVow();
+        vm.deal(CREATOR, STAKE);
+        vm.prank(CREATOR);
+        vowId = vow.createVow{value: STAKE}(PARTNER, address(0), "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040);
+        vm.deal(PARTNER, STAKE);
+        vm.prank(PARTNER);
+        vow.acceptVow{value: STAKE}(vowId);
+    }
+
+    function _submit(Vow vow, address sender, uint256 vowId, string memory proofURI, bytes32 proofHash) internal {
+        vm.prank(sender);
+        vow.submitProof(vowId, proofURI, proofHash);
+    }
+
+    function _expectSubmitRevert(
+        Vow vow,
+        address sender,
+        uint256 vowId,
+        string memory proofURI,
+        bytes32 proofHash,
+        bytes memory revertData
+    ) internal {
+        vm.expectRevert(revertData);
+        vm.prank(sender);
+        vow.submitProof(vowId, proofURI, proofHash);
+    }
+
+    function _vowData(Vow vow, uint256 vowId) internal view returns (bytes memory data) {
+        (bool ok, bytes memory ret) = address(vow).staticcall(abi.encodeWithSignature("vows(uint256)", vowId));
+        require(ok, "vow");
+        return ret;
+    }
+
+    function _word(bytes memory data, uint256 index) internal pure returns (bytes32 value) {
+        assembly {
+            value := mload(add(add(data, 0x20), mul(index, 0x20)))
+        }
+    }
+
+    function _addr(bytes memory data, uint256 index) internal pure returns (address value) {
+        value = address(uint160(uint256(_word(data, index))));
+    }
+
+    function _u64(bytes memory data, uint256 index) internal pure returns (uint64 value) {
+        value = uint64(uint256(_word(data, index)));
+    }
+
+    function _status(bytes memory data, uint256 index) internal pure returns (Vow.VowStatus value) {
+        value = Vow.VowStatus(uint8(uint256(_word(data, index))));
+    }
+
+    function _participantStatus(bytes memory data, uint256 index) internal pure returns (Vow.ParticipantStatus value) {
+        value = Vow.ParticipantStatus(uint8(uint256(_word(data, index))));
+    }
+
+    function _string(bytes memory data, uint256 index) internal pure returns (string memory value) {
+        uint256 offset = uint256(_word(data, index));
+        uint256 len;
+        assembly {
+            len := mload(add(add(data, 0x20), offset))
+        }
+        value = new string(len);
+        assembly {
+            let src := add(add(data, 0x40), offset)
+            let dst := add(value, 0x20)
+            for { let i := 0 } lt(i, len) { i := add(i, 0x20) } {
+                mstore(add(dst, i), mload(add(src, i)))
+            }
+        }
+    }
+
+    function _assertProofState(Vow vow, uint256 vowId, bool creatorSubmitted, string memory proofURI, bytes32 proofHash)
+        internal
+        view
+    {
+        bytes memory data = _vowData(vow, vowId);
+        require(_addr(data, 0) == CREATOR, "creator");
+        require(_addr(data, 1) == PARTNER, "partner");
+        require(_addr(data, 2) == address(0), "arbiter");
+        require(_word(data, 3) == bytes32(STAKE), "stake");
+        require(_u64(data, 4) == 1_010, "acceptDeadline");
+        require(_u64(data, 5) == 1_020, "deliveryDeadline");
+        require(_u64(data, 6) == 1_030, "reviewDeadline");
+        require(_u64(data, 7) == 1_040, "disputeDeadline");
+        require(keccak256(bytes(_string(data, 8))) == keccak256(bytes("Ship frontend")), "creatorPromise");
+        require(keccak256(bytes(_string(data, 9))) == keccak256(bytes("Deploy contract")), "partnerPromise");
+        require(bytes(_string(data, 14)).length == 0, "creatorDisputeReason");
+        require(bytes(_string(data, 15)).length == 0, "partnerDisputeReason");
+        require(_status(data, 18) == Vow.VowStatus.ACTIVE, "status");
+
+        if (creatorSubmitted) {
+            require(keccak256(bytes(_string(data, 10))) == keccak256(bytes(proofURI)), "creatorProofURI");
+            require(_word(data, 12) == proofHash, "creatorProofHash");
+            require(_participantStatus(data, 16) == Vow.ParticipantStatus.PROOF_SUBMITTED, "creatorStatus");
+            require(bytes(_string(data, 11)).length == 0, "partnerProofURI");
+            require(_word(data, 13) == bytes32(0), "partnerProofHash");
+            require(_participantStatus(data, 17) == Vow.ParticipantStatus.PENDING, "partnerStatus");
+        } else {
+            require(bytes(_string(data, 10)).length == 0, "creatorProofURI");
+            require(_word(data, 12) == bytes32(0), "creatorProofHash");
+            require(_participantStatus(data, 16) == Vow.ParticipantStatus.PENDING, "creatorStatus");
+            require(keccak256(bytes(_string(data, 11))) == keccak256(bytes(proofURI)), "partnerProofURI");
+            require(_word(data, 13) == proofHash, "partnerProofHash");
+            require(_participantStatus(data, 17) == Vow.ParticipantStatus.PROOF_SUBMITTED, "partnerStatus");
+        }
+    }
+
+    function test_CreatorCanSubmitProof() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/creator-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+
+        vm.expectEmit(true, true, false, true);
+        emit ProofSubmitted(vowId, CREATOR, proofURI, proofHash);
+        _submit(vow, CREATOR, vowId, proofURI, proofHash);
+
+        _assertProofState(vow, vowId, true, proofURI, proofHash);
+        require(address(vow).balance == 2 * STAKE, "balance");
+    }
+
+    function test_PartnerCanSubmitProof() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/partner-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+
+        vm.expectEmit(true, true, false, true);
+        emit ProofSubmitted(vowId, PARTNER, proofURI, proofHash);
+        _submit(vow, PARTNER, vowId, proofURI, proofHash);
+
+        _assertProofState(vow, vowId, false, proofURI, proofHash);
+        require(address(vow).balance == 2 * STAKE, "balance");
+    }
+
+    function test_UnrelatedWalletCannotSubmitProof() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/other-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _expectSubmitRevert(vow, OTHER, vowId, proofURI, proofHash, abi.encodeWithSelector(Vow.Unauthorized.selector));
+    }
+
+    function test_NonexistentVowFails() public {
+        Vow vow = _newVow();
+        _expectSubmitRevert(
+            vow,
+            CREATOR,
+            999,
+            "https://example.com/proof",
+            keccak256(bytes("https://example.com/proof")),
+            abi.encodeWithSelector(Vow.InvalidVow.selector)
+        );
+    }
+
+    function test_ProposedVowFails() public {
+        vm.warp(1_000);
+        Vow vow = _newVow();
+        vm.deal(CREATOR, STAKE);
+        vm.prank(CREATOR);
+        uint256 vowId = vow.createVow{value: STAKE}(PARTNER, address(0), "Ship frontend", "Deploy contract", 1_010, 1_020, 1_030, 1_040);
+        _expectSubmitRevert(
+            vow,
+            CREATOR,
+            vowId,
+            "https://example.com/proof",
+            keccak256(bytes("https://example.com/proof")),
+            abi.encodeWithSelector(Vow.InvalidVowStatus.selector)
+        );
+    }
+
+    function test_CreatorCannotSubmitTwice() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/creator-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, CREATOR, vowId, proofURI, proofHash);
+        _expectSubmitRevert(vow, CREATOR, vowId, proofURI, proofHash, abi.encodeWithSelector(Vow.ProofAlreadySubmitted.selector));
+    }
+
+    function test_PartnerCannotSubmitTwice() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/partner-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, PARTNER, vowId, proofURI, proofHash);
+        _expectSubmitRevert(vow, PARTNER, vowId, proofURI, proofHash, abi.encodeWithSelector(Vow.ProofAlreadySubmitted.selector));
+    }
+
+    function test_BeforeDeliveryDeadlineSucceeds() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        vm.warp(1_019);
+        string memory proofURI = "https://example.com/before-deadline";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, CREATOR, vowId, proofURI, proofHash);
+        _assertProofState(vow, vowId, true, proofURI, proofHash);
+    }
+
+    function test_ExactlyAtDeliveryDeadlineSucceeds() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        vm.warp(1_020);
+        string memory proofURI = "https://example.com/exact-deadline";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, PARTNER, vowId, proofURI, proofHash);
+        _assertProofState(vow, vowId, false, proofURI, proofHash);
+    }
+
+    function test_AfterDeliveryDeadlineFails() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        vm.warp(1_021);
+        _expectSubmitRevert(
+            vow,
+            CREATOR,
+            vowId,
+            "https://example.com/late-proof",
+            keccak256(bytes("https://example.com/late-proof")),
+            abi.encodeWithSelector(Vow.DeliveryDeadlinePassed.selector)
+        );
+    }
+
+    function test_EmptyURIFails() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        _expectSubmitRevert(vow, CREATOR, vowId, "", keccak256(bytes("")), abi.encodeWithSelector(Vow.InvalidProof.selector));
+    }
+
+    function test_ZeroHashFails() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        _expectSubmitRevert(vow, CREATOR, vowId, "https://example.com/proof", bytes32(0), abi.encodeWithSelector(Vow.InvalidProof.selector));
+    }
+
+    function test_IncorrectHashFails() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        _expectSubmitRevert(
+            vow,
+            CREATOR,
+            vowId,
+            "https://example.com/proof",
+            bytes32(uint256(1)),
+            abi.encodeWithSelector(Vow.InvalidProof.selector)
+        );
+    }
+
+    function test_CorrectKeccakHashSucceeds() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/keccak-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, CREATOR, vowId, proofURI, proofHash);
+        _assertProofState(vow, vowId, true, proofURI, proofHash);
+    }
+
+    function test_CounterpartyStateRemainsUnchanged() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/creator-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, CREATOR, vowId, proofURI, proofHash);
+        _assertProofState(vow, vowId, true, proofURI, proofHash);
+    }
+
+    function test_AgreementFieldsRemainUnchanged() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/partner-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, PARTNER, vowId, proofURI, proofHash);
+        _assertProofState(vow, vowId, false, proofURI, proofHash);
+    }
+
+    function test_ContractBalanceUnchanged() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        uint256 before = address(vow).balance;
+        string memory proofURI = "https://example.com/balance-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, CREATOR, vowId, proofURI, proofHash);
+        require(address(vow).balance == before, "balance");
+    }
+
+    function test_GlobalVowRemainsActive() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/global-active-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        _submit(vow, PARTNER, vowId, proofURI, proofHash);
+        require(_status(_vowData(vow, vowId), 18) == Vow.VowStatus.ACTIVE, "status");
+    }
+
+    function test_ProofSubmittedEventIsCorrect() public {
+        (Vow vow, uint256 vowId) = _activeVow();
+        string memory proofURI = "https://example.com/event-proof";
+        bytes32 proofHash = keccak256(bytes(proofURI));
+        vm.expectEmit(true, true, false, true);
+        emit ProofSubmitted(vowId, CREATOR, proofURI, proofHash);
+        _submit(vow, CREATOR, vowId, proofURI, proofHash);
+    }
+}

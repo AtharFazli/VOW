@@ -141,6 +141,31 @@ contract Vow {
         emit VowAccepted(vowId, msg.sender);
     }
 
+    function submitProof(uint256 vowId, string calldata proofURI, bytes32 proofHash) external {
+        Vow storage vow = vows[vowId];
+        if (vow.creator == address(0)) revert InvalidVow();
+        if (vow.status != VowStatus.ACTIVE) revert InvalidVowStatus();
+        if (block.timestamp > vow.deliveryDeadline) revert DeliveryDeadlinePassed();
+        if (bytes(proofURI).length == 0 || proofHash == bytes32(0)) revert InvalidProof();
+        if (proofHash != keccak256(bytes(proofURI))) revert InvalidProof();
+
+        if (msg.sender == vow.creator) {
+            if (vow.creatorStatus != ParticipantStatus.PENDING) revert ProofAlreadySubmitted();
+            vow.creatorProofURI = proofURI;
+            vow.creatorProofHash = proofHash;
+            vow.creatorStatus = ParticipantStatus.PROOF_SUBMITTED;
+        } else if (msg.sender == vow.partner) {
+            if (vow.partnerStatus != ParticipantStatus.PENDING) revert ProofAlreadySubmitted();
+            vow.partnerProofURI = proofURI;
+            vow.partnerProofHash = proofHash;
+            vow.partnerStatus = ParticipantStatus.PROOF_SUBMITTED;
+        } else {
+            revert Unauthorized();
+        }
+
+        emit ProofSubmitted(vowId, msg.sender, proofURI, proofHash);
+    }
+
     function getUserVowIds(address user) external view returns (uint256[] memory) {
         return userVowIds[user];
     }
