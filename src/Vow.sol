@@ -156,6 +156,90 @@ contract Vow {
         }
     }
 
+    function _isTerminal(ParticipantStatus status) internal pure returns (bool) {
+        return status == ParticipantStatus.SUCCESS || status == ParticipantStatus.FAILED
+            || status == ParticipantStatus.UNRESOLVED;
+    }
+
+    function _applySettlement(Vow storage vow) internal {
+        uint256 stake = vow.stake;
+
+        if (vow.creatorStatus == ParticipantStatus.SUCCESS) {
+            if (vow.partnerStatus == ParticipantStatus.SUCCESS) {
+                claimable[vow.creator] += stake;
+                claimable[vow.partner] += stake;
+                return;
+            }
+            if (vow.partnerStatus == ParticipantStatus.FAILED) {
+                claimable[vow.creator] += 2 * stake;
+                return;
+            }
+            if (vow.partnerStatus == ParticipantStatus.UNRESOLVED) {
+                claimable[vow.creator] += stake;
+                claimable[vow.partner] += stake;
+                return;
+            }
+        } else if (vow.creatorStatus == ParticipantStatus.FAILED) {
+            if (vow.partnerStatus == ParticipantStatus.SUCCESS) {
+                claimable[vow.partner] += 2 * stake;
+                return;
+            }
+            if (vow.partnerStatus == ParticipantStatus.FAILED) {
+                claimable[failureSink] += 2 * stake;
+                return;
+            }
+            if (vow.partnerStatus == ParticipantStatus.UNRESOLVED) {
+                claimable[failureSink] += stake;
+                claimable[vow.partner] += stake;
+                return;
+            }
+        } else if (vow.creatorStatus == ParticipantStatus.UNRESOLVED) {
+            if (vow.partnerStatus == ParticipantStatus.SUCCESS) {
+                claimable[vow.creator] += stake;
+                claimable[vow.partner] += stake;
+                return;
+            }
+            if (vow.partnerStatus == ParticipantStatus.FAILED) {
+                claimable[vow.creator] += stake;
+                claimable[failureSink] += stake;
+                return;
+            }
+            if (vow.partnerStatus == ParticipantStatus.UNRESOLVED) {
+                claimable[vow.creator] += stake;
+                claimable[vow.partner] += stake;
+                return;
+            }
+        }
+
+        revert VowNotReadyForSettlement();
+    }
+
+    function finalizeVow(uint256 vowId) external {
+        Vow storage vow = vows[vowId];
+        if (vow.creator == address(0)) revert InvalidVow();
+        if (vow.status == VowStatus.SETTLED) revert InvalidVowStatus();
+
+        if (vow.status == VowStatus.PROPOSED) {
+            if (block.timestamp <= vow.acceptDeadline) revert VowNotReadyForSettlement();
+            claimable[vow.creator] += vow.stake;
+            vow.status = VowStatus.SETTLED;
+            emit VowSettled(vowId, vow.creatorStatus, vow.partnerStatus);
+            return;
+        }
+
+        if (vow.status != VowStatus.ACTIVE) revert InvalidVowStatus();
+
+        _resolveParticipantTimeouts(vow);
+
+        if (!_isTerminal(vow.creatorStatus) || !_isTerminal(vow.partnerStatus)) {
+            revert VowNotReadyForSettlement();
+        }
+
+        _applySettlement(vow);
+        vow.status = VowStatus.SETTLED;
+        emit VowSettled(vowId, vow.creatorStatus, vow.partnerStatus);
+    }
+
     error VowNotReadyForSettlement();
     error NothingToWithdraw();
     error NativeTransferFailed();
