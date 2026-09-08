@@ -65,19 +65,12 @@ contract Vow {
     event VowCreated(
         uint256 indexed vowId, address indexed creator, address indexed partner, uint256 stake, address arbiter
     );
-
     event VowAccepted(uint256 indexed vowId, address indexed partner);
-
     event ProofSubmitted(uint256 indexed vowId, address indexed participant, string proofURI, bytes32 proofHash);
-
     event ProofApproved(uint256 indexed vowId, address indexed participant, address indexed reviewer);
-
     event ProofDisputed(uint256 indexed vowId, address indexed participant, address indexed reviewer, string reason);
-
     event DisputeResolved(uint256 indexed vowId, address indexed participant, bool proofValid);
-
     event VowSettled(uint256 indexed vowId, ParticipantStatus creatorOutcome, ParticipantStatus partnerOutcome);
-
     event Withdrawal(address indexed account, uint256 amount);
 
     uint256 public nextVowId;
@@ -133,6 +126,19 @@ contract Vow {
         userVowIds[partner].push(vowId);
 
         emit VowCreated(vowId, msg.sender, partner, msg.value, arbiter);
+    }
+
+    function acceptVow(uint256 vowId) external payable {
+        Vow storage vow = vows[vowId];
+        if (vow.creator == address(0)) revert InvalidVow();
+        if (msg.sender != vow.partner) revert Unauthorized();
+        if (vow.status != VowStatus.PROPOSED) revert InvalidVowStatus();
+        if (block.timestamp > vow.acceptDeadline) revert AcceptDeadlinePassed();
+        if (msg.value != vow.stake) revert IncorrectStake();
+
+        vow.status = VowStatus.ACTIVE;
+
+        emit VowAccepted(vowId, msg.sender);
     }
 
     function getUserVowIds(address user) external view returns (uint256[] memory) {
