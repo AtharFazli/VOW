@@ -243,6 +243,27 @@ contract Vow {
     error VowNotReadyForSettlement();
     error NothingToWithdraw();
     error NativeTransferFailed();
+    error ReentrantCall();
+
+    modifier nonReentrant() {
+        if (withdrawLocked) revert ReentrantCall();
+        withdrawLocked = true;
+        _;
+        withdrawLocked = false;
+    }
+
+    bool private withdrawLocked;
+
+    function withdraw() external nonReentrant {
+        uint256 amount = claimable[msg.sender];
+        if (amount == 0) revert NothingToWithdraw();
+
+        claimable[msg.sender] = 0;
+        (bool success,) = payable(msg.sender).call{value: amount}("");
+        if (!success) revert NativeTransferFailed();
+
+        emit Withdrawal(msg.sender, amount);
+    }
 
     event VowCreated(
         uint256 indexed vowId, address indexed creator, address indexed partner, uint256 stake, address arbiter
