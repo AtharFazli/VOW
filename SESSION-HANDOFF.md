@@ -1,11 +1,11 @@
 # VOW Session Handoff
 
 ## Current State
-- Current/last completed gate: Gate N — Wallet & Contract Frontend Foundation
+- Current/last completed gate: Gate O — Vow Detail
 - Gate status: PASS; locked
-- Next allowed gate: Gate O — Vow Detail
+- Next allowed gate: Gate P — Create VOW
 - Current branch: testnet-mainnet
-- Current commit: f47c9b0
+- Current commit: 27fe401
 
 ## Completed Gates
 - Gate B — PASS; createVow skeleton and constructor baseline verified.
@@ -21,6 +21,7 @@
 - Gate L — PASS; BOT Chain network configuration established (Bohr Testnet + BOT Mainnet RPC, chain IDs, deployer profiles).
 - Gate M — PASS; Vow contract deployed to Bohr Testnet.
 - Gate N — PASS; frontend foundation with wallet connection, network handling, and contract read implemented.
+- Gate O — PASS; Vow Detail page with full data read, action eligibility logic, and 23 unit tests.
 
 ## Deployment State
 
@@ -45,15 +46,20 @@
 - Functions: createVow, acceptVow, submitProof, reviewProof, resolveDispute, finalizeVow, withdraw
 - Frontend: Next.js 16 + TypeScript + wagmi 3 + viem 2 + Tailwind CSS 4
 
-## Frontend State (Gate N)
+## Frontend State
 - Location: `frontend/`
-- Stack: Next.js 16.3.4 (App Router) + wagmi 3.7.7 + viem 2.56.3 + Tailwind CSS 4
+- Stack: Next.js 16.3.4 (App Router) + wagmi 3.7.7 + viem 2.56.3 + Tailwind CSS 4 + vitest 5.0.0
 - Chain config: Bohr Testnet only (chain 968)
 - Contract config: 0x9539263f4861812B08C37Bb3cB6603c771d6530b
 - Wallet connection: injected (MetaMask/Rabby)
-- Network handling: wrong-chain detection, switch/add Bohr Testnet
-- Contract read: nextVowId() and failureSink() live RPC reads
-- No write transactions implemented
+- Pages:
+  - `/` — home with VOW ID lookup, wallet connect, contract status
+  - `/vow/[id]` — full Vow Detail with data read, role derivation, action eligibility
+- Action eligibility: centralized in `src/lib/vow.ts` (pure utility)
+- Role derivation: creator / partner / arbiter / observer from connected wallet
+- Enum mapping: VowStatus (PROPOSED/ACTIVE/SETTLED), ParticipantStatus (PENDING/PROOF_SUBMITTED/SUCCESS/FAILED/DISPUTED/UNRESOLVED)
+- Tests: 23 vitest unit tests covering role derivation, action eligibility, deadline boundaries
+- No write transactions implemented (Gate P+)
 - ABI generated from Foundry build artifacts (out/Vow.sol/Vow.abi.json)
 
 ## Verification
@@ -62,12 +68,10 @@
   - failureSink(): 0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B ✓
   - nextVowId(): 0 ✓
   - chain ID: 968 ✓
-- Live RPC reads from frontend config verified:
-  - nextVowId(): 0 ✓
-  - failureSink(): 0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B ✓
 - Frontend verification:
-  - npm run build: PASS
   - npm run lint: PASS
+  - npm run build: PASS
+  - npm run test: 23 passed, 0 failed
   - TypeScript typecheck: PASS
 - Solidity regression:
   - forge build: PASS
@@ -77,7 +81,7 @@
 ## Known Issues
 - Existing Foundry style warnings remain in repo (naming conventions, import style).
 - Deploy script added forge-std submodule and libs=["lib"] to foundry.toml for Gate M.
-- Next.js boilerplate SVGs and AGENTS.md/CLAUDE.md in frontend/ (scaffolding, harmless).
+- vitest uses legacy-peer-deps for installation.
 
 ## Important Decisions
 - DISPUTED is not FAILED at review stage.
@@ -87,8 +91,11 @@
 - Source-of-truth docs remain authoritative over this handoff.
 - Deploy script uses hard chain guard: require(block.chainid == 968, "Wrong chain").
 - PRIVATE_KEY is never committed, logged, or stored in source.
-- Frontend uses injected wallet connector only (no WalletConnect, no coinbase).
-- ABI sourced directly from Foundry build output (no manual signature authoring).
+- Frontend uses injected wallet connector only.
+- ABI sourced directly from Foundry build output.
+- `Date.now()` replaced with useEffect-based state for React purity compliance.
+- tsconfig target upgraded to ES2020 for BigInt literal support.
+- Proof URI rendering: only https and ipfs schemes clickable; others plain text.
 
 ## Files Changed Recently
 - src/Vow.sol: withdraw and audit-era contract logic are final for v1.
@@ -97,17 +104,26 @@
 - lib/forge-std: added as submodule (v1.16.2) for deploy script dependency.
 - .gitmodules: forge-std submodule registration.
 - foundry.toml: libs = ["lib"] added for forge-std resolution.
-- frontend/: Next.js 16 + wagmi + viem + Tailwind foundation (Gate N).
+- .gitignore: added foundry.lock, frontend/AGENTS.md, frontend/CLAUDE.md
+- frontend/: Next.js 16 + wagmi + viem + Tailwind foundation
   - src/lib/chain.ts: Bohr Testnet chain definition
   - src/lib/config.ts: wagmi config with injected connector
   - src/lib/contract.ts: VOW_ADDRESS, FAILURE_SINK, VOW_ABI
   - src/lib/vow-abi.json: Foundry-generated ABI
+  - src/lib/types.ts: VowData, VowStatus, ParticipantStatus, VowRole, VowAction
+  - src/lib/vow.ts: deriveRole, formatStake, formatDeadline, getAvailableActions, hasArbiter
+  - src/lib/vow.test.ts: 23 unit tests for pure logic
   - src/components/Providers.tsx: WagmiProvider + QueryClientProvider
   - src/components/ConnectWallet.tsx: wallet connect/disconnect, wrong-chain switch
   - src/components/ContractStatus.tsx: live nextVowId + failureSink reads
+  - src/components/VowDetail.tsx: full vow data display with action eligibility
   - src/app/layout.tsx: dark-first root layout with providers
-  - src/app/page.tsx: minimal home page
+  - src/app/page.tsx: home page with VOW ID lookup
+  - src/app/vow/[id]/page.tsx: dynamic vow detail route
+  - vitest.config.ts: vitest configuration
+  - tsconfig.json: target upgraded to ES2020
+  - package.json: added vitest, vite, test script
 
 ## Next Session
-- Exact next allowed gate: Gate O — Vow Detail.
+- Exact next allowed gate: Gate P — Create VOW.
 - Before continuing, re-read source-of-truth docs and verify repo state first.
