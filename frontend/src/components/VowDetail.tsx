@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useReadContract, useAccount } from 'wagmi'
 import { type Address } from 'viem'
 import { VOW_ADDRESS, VOW_ABI, VOW_CHAIN } from '@/lib/contract'
 import { type VowData, VowStatus, ParticipantStatus, VOW_STATUS_LABEL, PARTICIPANT_STATUS_LABEL } from '@/lib/types'
 import { deriveRole, formatStake, formatDeadline, getAvailableActions, hasArbiter } from '@/lib/vow'
+import { useChainTime } from '@/lib/useChainTime'
 
 function shorten(addr: Address): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`
@@ -76,12 +77,8 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
     query: { enabled: !!connected },
   })
 
-  // ponytail: chain timestamp preferred for eligibility; local clock for display fallback
-  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000))
-  useEffect(() => {
-    const id = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 30_000)
-    return () => clearInterval(id)
-  }, [])
+  // ponytail: chain timestamp for protocol eligibility; local clock display only
+  const { timestamp: chainTime, loading: chainTimeLoading } = useChainTime()
 
   const vow: VowData | null = useMemo(() => {
     if (!data) return null
@@ -118,8 +115,8 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
 
   const role = useMemo(() => vow ? deriveRole(vow, connected ?? '0x') : 'observer', [vow, connected])
   const actions = useMemo(
-    () => vow ? getAvailableActions(vow, role, now, (claimable as bigint | undefined) ?? 0n) : [],
-    [vow, role, now, claimable],
+    () => vow && chainTime !== null ? getAvailableActions(vow, role, chainTime, (claimable as bigint | undefined) ?? 0n) : [],
+    [vow, role, chainTime, claimable],
   )
 
   if (isLoading) {
@@ -327,7 +324,9 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
       {/* Actions (placeholder — no writes in Gate O) */}
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
         <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">Actions</h2>
-        {actions.length === 0 ? (
+        {chainTimeLoading ? (
+          <p className="text-sm text-zinc-500">Checking Bohr network time…</p>
+        ) : actions.length === 0 ? (
           <p className="text-sm text-zinc-500">No actions available for your wallet in current state.</p>
         ) : (
           <div className="flex flex-wrap gap-2">

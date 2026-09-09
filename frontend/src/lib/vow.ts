@@ -30,6 +30,32 @@ function deadlineActive(ts: bigint, now: number): boolean {
   return ts > 0n && BigInt(now) <= ts
 }
 
+// ponytail: deadline strictly passed (for finalize eligibility where contract uses `>` not `<=`)
+function deadlinePassed(ts: bigint, now: number): boolean {
+  return ts > 0n && BigInt(now) > ts
+}
+
+export function isTerminal(s: ParticipantStatus): boolean {
+  return s === ParticipantStatus.SUCCESS || s === ParticipantStatus.FAILED || s === ParticipantStatus.UNRESOLVED
+}
+
+// Predict whether _resolveParticipantTimeouts would make this participant terminal
+function wouldBecomeTerminal(status: ParticipantStatus, now: number, deadlines: { delivery: bigint; review: bigint; dispute: bigint }): boolean {
+  if (isTerminal(status)) return true
+  if (status === ParticipantStatus.PENDING) return deadlinePassed(deadlines.delivery, now)
+  if (status === ParticipantStatus.PROOF_SUBMITTED) return deadlinePassed(deadlines.review, now)
+  if (status === ParticipantStatus.DISPUTED) return deadlinePassed(deadlines.dispute, now)
+  return false
+}
+
+function finalizeReady(vow: VowData, now: number): boolean {
+  if (vow.status === VowStatus.SETTLED) return false
+  if (vow.status === VowStatus.PROPOSED) return deadlinePassed(vow.acceptDeadline, now)
+  if (vow.status !== VowStatus.ACTIVE) return false
+  const dl = { delivery: vow.deliveryDeadline, review: vow.reviewDeadline, dispute: vow.disputeDeadline }
+  return wouldBecomeTerminal(vow.creatorStatus, now, dl) && wouldBecomeTerminal(vow.partnerStatus, now, dl)
+}
+
 export function getAvailableActions(
   vow: VowData,
   role: VowRole,
@@ -37,7 +63,7 @@ export function getAvailableActions(
   claimable: bigint = 0n,
 ): VowAction[] {
   const actions: VowAction[] = []
-  const hasArbiter = vow.arbiter !== '0x0000000000000000000000000000000000000000'
+  const hasArb = vow.arbiter !== '0x0000000000000000000000000000000000000000'
 
   if (role === 'partner' && vow.status === VowStatus.PROPOSED && deadlineActive(vow.acceptDeadline, now)) {
     actions.push('accept')
@@ -61,14 +87,16 @@ export function getAvailableActions(
     }
   }
 
-  if (hasArbiter && role === 'arbiter' && vow.status === VowStatus.ACTIVE && deadlineActive(vow.disputeDeadline, now)) {
+  if (hasArb && role === 'arbiter' && vow.status === VowStatus.ACTIVE && deadlineActive(vow.disputeDeadline, now)) {
     const anyDisputed = vow.creatorStatus === ParticipantStatus.DISPUTED || vow.partnerStatus === ParticipantStatus.DISPUTED
     if (anyDisputed) {
       actions.push('resolveDispute')
     }
   }
 
-  actions.push('finalize')
+  if (finalizeReady(vow, now)) {
+    actions.push('finalize')
+  }
 
   if (claimable > 0n) {
     actions.push('claim')

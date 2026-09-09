@@ -5,7 +5,7 @@
 - Gate status: PASS; locked
 - Next allowed gate: Gate P — Create VOW
 - Current branch: testnet-mainnet
-- Current commit: 27fe401
+- Current commit: 01299d3
 
 ## Completed Gates
 - Gate B — PASS; createVow skeleton and constructor baseline verified.
@@ -21,7 +21,10 @@
 - Gate L — PASS; BOT Chain network configuration established (Bohr Testnet + BOT Mainnet RPC, chain IDs, deployer profiles).
 - Gate M — PASS; Vow contract deployed to Bohr Testnet.
 - Gate N — PASS; frontend foundation with wallet connection, network handling, and contract read implemented.
-- Gate O — PASS; Vow Detail page with full data read, action eligibility logic, and 23 unit tests.
+- Gate O — PASS; Vow Detail page with full data read, action eligibility logic, chain timestamp, and 42 unit tests.
+
+## Gate O Corrections
+- fbddb05 → 01299d3: replaced local `Date.now()` with chain timestamp via `useChainTime` hook (fetches Bohr block timestamp every 12s); finalize eligibility now requires `block.timestamp > deadline` (strictly greater, matching contract semantics); finalize hidden when chain time unavailable; added `isTerminal` + `wouldBecomeTerminal` helpers for conservative finalize readiness predicate; tests expanded 23 → 42.
 
 ## Deployment State
 
