@@ -5,8 +5,9 @@ import { useReadContract, useAccount } from 'wagmi'
 import { type Address } from 'viem'
 import { VOW_ADDRESS, VOW_ABI, VOW_CHAIN } from '@/lib/contract'
 import { type VowData, VowStatus, ParticipantStatus, VOW_STATUS_LABEL, PARTICIPANT_STATUS_LABEL } from '@/lib/types'
-import { deriveRole, formatStake, formatDeadline, getAvailableActions, hasArbiter } from '@/lib/vow'
+import { deriveRole, formatStake, formatDeadline, hasArbiter } from '@/lib/vow'
 import { useChainTime } from '@/lib/useChainTime'
+import { ActionPanel } from '@/components/ActionPanel'
 
 function shorten(addr: Address): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`
@@ -51,7 +52,7 @@ function participantVariant(s: ParticipantStatus) {
 }
 
 export function VowDetail({ vowId }: { vowId: bigint }) {
-  const { address: connected } = useAccount()
+  const { address: connected, chain } = useAccount()
 
   const { data, isLoading, error } = useReadContract({
     abi: VOW_ABI,
@@ -113,11 +114,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
     }
   }, [data])
 
-  const role = useMemo(() => vow ? deriveRole(vow, connected ?? '0x') : 'observer', [vow, connected])
-  const actions = useMemo(
-    () => vow && chainTime !== null ? getAvailableActions(vow, role, chainTime, (claimable as bigint | undefined) ?? 0n) : [],
-    [vow, role, chainTime, claimable],
-  )
+  const role = useMemo(() => vow ? deriveRole(vow, connected) : 'observer', [vow, connected])
 
   if (isLoading) {
     return (
@@ -321,27 +318,24 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
         </section>
       )}
 
-      {/* Actions (placeholder — no writes in Gate O) */}
-      <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">Actions</h2>
-        {chainTimeLoading ? (
-          <p className="text-sm text-zinc-500">Checking Bohr network time…</p>
-        ) : actions.length === 0 ? (
-          <p className="text-sm text-zinc-500">No actions available for your wallet in current state.</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {actions.map((a) => (
-              <span
-                key={a}
-                className="rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs text-zinc-400"
-              >
-                {a === 'submitProof' ? 'Submit Proof' : a === 'resolveDispute' ? 'Resolve Dispute' : a.charAt(0).toUpperCase() + a.slice(1)}
-              </span>
-            ))}
-          </div>
-        )}
-        <p className="mt-3 text-xs text-zinc-600">Write actions will be wired in future gates.</p>
-      </section>
+      {chainTimeLoading || !connected ? (
+        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
+          <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Actions</h2>
+          <p className="text-sm text-zinc-500">
+            {chainTimeLoading ? 'Checking Bohr network time…' : 'Connect wallet to see available actions.'}
+          </p>
+        </section>
+      ) : (
+        <ActionPanel
+          vow={vow}
+          vowId={vowId}
+          role={role}
+          address={connected}
+          claimable={(claimable as bigint | undefined) ?? 0n}
+          chainTime={chainTime}
+          chainId={chain?.id}
+        />
+      )}
     </div>
   )
 }

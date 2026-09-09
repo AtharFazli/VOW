@@ -26,8 +26,8 @@ export function formatDeadline(ts: bigint): string {
   return d.toLocaleString()
 }
 
-function deadlineActive(ts: bigint, now: number): boolean {
-  return ts > 0n && BigInt(now) <= ts
+function deadlineActive(ts: bigint, now: number | null): boolean {
+  return now !== null && ts > 0n && BigInt(now) <= ts
 }
 
 // ponytail: deadline strictly passed (for finalize eligibility where contract uses `>` not `<=`)
