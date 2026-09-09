@@ -79,6 +79,10 @@ web_modules/
 .cache
 .parcel-cache
 
+# Foundry
+cache/
+broadcast/
+
 # Next.js build output
 .next
 out
