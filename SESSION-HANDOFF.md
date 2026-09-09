@@ -1,11 +1,11 @@
 # VOW Session Handoff
 
 ## Current State
-- Current/last completed gate: Gate M — Deploy Contract
+- Current/last completed gate: Gate N — Wallet & Contract Frontend Foundation
 - Gate status: PASS; locked
-- Next allowed gate: Gate N — Wallet & Contract Frontend Foundation
+- Next allowed gate: Gate O — Vow Detail
 - Current branch: testnet-mainnet
-- Current commit: <TBD — pending Gate M commit>
+- Current commit: f47c9b0
 
 ## Completed Gates
 - Gate B — PASS; createVow skeleton and constructor baseline verified.
@@ -20,6 +20,7 @@
 - Gate K — PASS; full contract audit completed, no protocol bug found.
 - Gate L — PASS; BOT Chain network configuration established (Bohr Testnet + BOT Mainnet RPC, chain IDs, deployer profiles).
 - Gate M — PASS; Vow contract deployed to Bohr Testnet.
+- Gate N — PASS; frontend foundation with wallet connection, network handling, and contract read implemented.
 
 ## Deployment State
 
@@ -42,7 +43,18 @@
 ## Current Implementation
 - Contracts deployed: Vow.sol on Bohr Testnet at 0x9539263f4861812B08C37Bb3cB6603c771d6530b
 - Functions: createVow, acceptVow, submitProof, reviewProof, resolveDispute, finalizeVow, withdraw
-- Frontend implemented: none in this repository.
+- Frontend: Next.js 16 + TypeScript + wagmi 3 + viem 2 + Tailwind CSS 4
+
+## Frontend State (Gate N)
+- Location: `frontend/`
+- Stack: Next.js 16.3.4 (App Router) + wagmi 3.7.7 + viem 2.56.3 + Tailwind CSS 4
+- Chain config: Bohr Testnet only (chain 968)
+- Contract config: 0x9539263f4861812B08C37Bb3cB6603c771d6530b
+- Wallet connection: injected (MetaMask/Rabby)
+- Network handling: wrong-chain detection, switch/add Bohr Testnet
+- Contract read: nextVowId() and failureSink() live RPC reads
+- No write transactions implemented
+- ABI generated from Foundry build artifacts (out/Vow.sol/Vow.abi.json)
 
 ## Verification
 - Post-deploy readback:
@@ -50,17 +62,22 @@
   - failureSink(): 0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B ✓
   - nextVowId(): 0 ✓
   - chain ID: 968 ✓
-- Latest verified commands:
-  - forge fmt
-  - forge fmt --check
-  - forge build
-  - forge test -vvv
-  - git diff --check
-- Result: 118 passed, 0 failed
+- Live RPC reads from frontend config verified:
+  - nextVowId(): 0 ✓
+  - failureSink(): 0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B ✓
+- Frontend verification:
+  - npm run build: PASS
+  - npm run lint: PASS
+  - TypeScript typecheck: PASS
+- Solidity regression:
+  - forge build: PASS
+  - forge test -vvv: 118 passed, 0 failed
+  - git diff --check: PASS
 
 ## Known Issues
 - Existing Foundry style warnings remain in repo (naming conventions, import style).
 - Deploy script added forge-std submodule and libs=["lib"] to foundry.toml for Gate M.
+- Next.js boilerplate SVGs and AGENTS.md/CLAUDE.md in frontend/ (scaffolding, harmless).
 
 ## Important Decisions
 - DISPUTED is not FAILED at review stage.
@@ -70,6 +87,8 @@
 - Source-of-truth docs remain authoritative over this handoff.
 - Deploy script uses hard chain guard: require(block.chainid == 968, "Wrong chain").
 - PRIVATE_KEY is never committed, logged, or stored in source.
+- Frontend uses injected wallet connector only (no WalletConnect, no coinbase).
+- ABI sourced directly from Foundry build output (no manual signature authoring).
 
 ## Files Changed Recently
 - src/Vow.sol: withdraw and audit-era contract logic are final for v1.
@@ -78,7 +97,17 @@
 - lib/forge-std: added as submodule (v1.16.2) for deploy script dependency.
 - .gitmodules: forge-std submodule registration.
 - foundry.toml: libs = ["lib"] added for forge-std resolution.
+- frontend/: Next.js 16 + wagmi + viem + Tailwind foundation (Gate N).
+  - src/lib/chain.ts: Bohr Testnet chain definition
+  - src/lib/config.ts: wagmi config with injected connector
+  - src/lib/contract.ts: VOW_ADDRESS, FAILURE_SINK, VOW_ABI
+  - src/lib/vow-abi.json: Foundry-generated ABI
+  - src/components/Providers.tsx: WagmiProvider + QueryClientProvider
+  - src/components/ConnectWallet.tsx: wallet connect/disconnect, wrong-chain switch
+  - src/components/ContractStatus.tsx: live nextVowId + failureSink reads
+  - src/app/layout.tsx: dark-first root layout with providers
+  - src/app/page.tsx: minimal home page
 
 ## Next Session
-- Exact next allowed gate: Gate N — Wallet & Contract Frontend Foundation.
+- Exact next allowed gate: Gate O — Vow Detail.
 - Before continuing, re-read source-of-truth docs and verify repo state first.
