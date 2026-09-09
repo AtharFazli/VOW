@@ -60,6 +60,13 @@ export default function Home() {
         >
           Create a Vow →
         </a>
+        <span className="mx-2 text-zinc-700">·</span>
+        <a
+          href="/my-vows"
+          className="inline-block text-sm text-zinc-500 hover:text-zinc-300 transition"
+        >
+          My Vows
+        </a>
       </section>
 
       <section className="mx-auto max-w-[760px] px-6 pb-20">
