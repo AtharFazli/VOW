@@ -53,6 +53,13 @@ export default function Home() {
             View
           </button>
         </form>
+
+        <a
+          href="/create"
+          className="mt-4 inline-block text-sm text-amber-500 hover:text-amber-400 transition"
+        >
+          Create a Vow →
+        </a>
       </section>
 
       <section className="mx-auto max-w-[760px] px-6 pb-20">
