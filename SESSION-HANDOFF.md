@@ -87,6 +87,14 @@ Explorer: `https://scan.bohr.life`
 - `frontend/src/lib/vowActions.test.ts` — Gate S regression tests
 - `SESSION-HANDOFF.md` — Gate S evidence
 
+## Gate R — Landing Page
+- Implemented concise judge-facing landing page at `/`.
+- Hero: `Trust is good. Collateral is better.` with `CREATE A VOW` → `/create`.
+- Lifecycle: Promise → Lock → Prove → Settle, including mutual BOT collateral, counterparty review, and smart-contract settlement.
+- Honest trust boundary: contract guarantees custody, authorization, deadlines, and deterministic settlement; people review real-world proof.
+- Navigation preserves `/create` and `/my-vows`; wallet/network controls remain in app shell.
+- Focused landing tests added; frontend regression: 98 passed, lint PASS, production build PASS; forge tests: 118 passed.
+
 ## Next Session
-- Gate R — Landing Page.
-- Before continuing, re-read source-of-truth docs and verify repo state first.
+- Gate T — Failure Path Demo.
+- Before continuing, verify repo state first.
