@@ -1,17 +1,53 @@
 # VOW Session Handoff
 
 ## Current State
-- Current/last completed gate: Gate S — Two-Wallet Happy Path
+- Current/last completed gate: Gate T — Final End-to-End Verification
 - Gate status: PASS; locked
-- Next allowed gate: Gate R — Landing Page
+- Post-Gate-T evidence archive and repository/UI audit: PASS
+- No next product gate approved; preserve deployed contract and Gate T evidence
 - Current branch: testnet-mainnet
-- Current commit: `feat: complete VOW two-wallet happy path`
+- Starting HEAD for post-Gate-T audit: `5fb8bc187ff6b47cff5485f715229fa68d85741b`
 
 ## Completed Gates
 - Gate B through P — PASS (see earlier entries)
 - Gate P — PASS; Create VOW flow with live test transaction on Bohr Testnet.
 - Gate Q — PASS; My Vows dashboard with on-chain discovery via getUserVowIds.
 - Gate S — PASS; VOW #0 completed full two-wallet happy path and local/frontend regression passed.
+
+## Gate T — Final End-to-End Verification
+
+- Status: PASS; verified on Bohr Testnet, chain ID 968
+- Contract: `0x9539263f4861812B08C37Bb3cB6603c771d6530b`
+- Explorer: `https://scan.bohr.life`
+- VOW ID: 1
+- Creator: `0x8d9165F2eDF3Ec10659A0762112DE9e007619aE7`
+- Partner: `0xFf904631Db15A6f449866a988AADe33A7BDCC372`
+- Final lifecycle: `PROPOSED → ACTIVE → proofs submitted → SUCCESS / SUCCESS → SETTLED → both withdrawals`
+- Final creator state: SUCCESS; final partner state: SUCCESS
+- Final creator claimable: 0 BOT; final partner claimable: 0 BOT
+- Final contract balance: 0 BOT; nextVowId: 2
+
+### Gate T transaction evidence
+1. CREATE — `0x88880af1f4cb77485c5f9d17251b186e1374313c84682454cdbb8e43cf174884`
+2. ACCEPT — `0xe2a985a02eb451e1dd3c0a1d299032e6cae5782fa2e69d4759315a55d8d3b760`
+3. CREATOR PROOF — `0xb5d9e7c7a2a21a7140450aeaba784cc453143b1e18f3933162877fb2daae6dc2`
+4. PARTNER PROOF — `0x0a7644708779a013833ea969111feee59dc7ce7d77429d06062c939f790967e4`
+5. CREATOR REVIEWS PARTNER — `0xe177ad96979e836bdd8fac5d714d95699ed35d8f55a693bbb4af3708bab54fbd`
+6. PARTNER REVIEWS CREATOR — `0xba09745a41a285c9dfa2536248ab818dc1f0941f2d23c9b2c11e166bbcb84cb7`
+7. FINALIZE — `0x368f8f9ef620001e540c218801b8f2bf06a9e63b1f7d4298fb20400aaec00a35`
+8. CREATOR WITHDRAW — `0x52e12c331980c749ce256eef3329a0906c26564c00e60c081b7610d7a2fb6402`
+9. PARTNER WITHDRAW — `0x6b1c627f98e21183ede86a70b08a8cd9f3fc9568a7d25464c01018cafcf18495`
+
+All nine transaction receipts verified SUCCESS. Settlement allocated 0.01 BOT to each participant; each withdrew 0.01 BOT. Double-withdraw simulations reverted with `NothingToWithdraw()`. Final accounting: 0.01 BOT creator collateral + 0.01 BOT partner collateral = 0.02 BOT total; 0 BOT claimable and 0 BOT contract balance remain.
+
+## Post-Gate-T Repository / UI Audit
+
+- Baseline: `/d/VOW`, branch `testnet-mainnet`, HEAD `5fb8bc187ff6b47cff5485f715229fa68d85741b`; working tree clean before audit.
+- Frontend surface audited: landing, create, My Vows, VOW detail, wallet/network controls, proof submission, review, finalize, withdraw, contract/network configuration, routes and user-facing artifacts.
+- Verified config points to Bohr Testnet chain 968, `https://rpc.bohr.life`, explorer `https://scan.bohr.life`, and deployed contract above.
+- No runtime/product files changed. Existing gap recorded: contract-supported dispute/resolve actions are modeled in eligibility but not rendered in the current action panel; no scope expansion made.
+- Regression: frontend 98 tests passed, lint passed, production build passed; Forge Docker format check passed, build passed, and 118 tests passed.
+- Diff review: only this evidence document changed; no secrets, wallet keys, seed phrases, generated artifacts, or unrelated changes.
 
 ## Live VOW Evidence
 
