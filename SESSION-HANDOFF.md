@@ -131,6 +131,7 @@ Explorer: `https://scan.bohr.life`
 - Navigation preserves `/create` and `/my-vows`; wallet/network controls remain in app shell.
 - Focused landing tests added; frontend regression: 98 passed, lint PASS, production build PASS; forge tests: 118 passed.
 
-## Next Session
-- Gate T — Failure Path Demo.
-- Before continuing, verify repo state first.
+## Submission Readiness
+- Gate T is CLOSED; Gate U README / judge entry point is ready for documentation-only preparation.
+- Repository baseline: `testnet-mainnet` at `286c0ef14570b9629e05aae80f045b3c0a05a83d`.
+- Preserve deployed contract and verified Gate T evidence; no deployment, transactions, frontend/runtime changes, or remote push.
