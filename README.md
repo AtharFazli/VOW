@@ -2,7 +2,24 @@
 
 > Trust is good. Collateral is better.
 
+## What is VOW
+
 VOW is a two-person reciprocal commitment protocol. Both participants lock equal native BOT collateral behind promises they make to each other.
+
+## Judge entry point
+
+- Repository: [github.com/AtharFazli/VOW](https://github.com/AtharFazli/VOW)
+- Deployed contract, Bohr Testnet chain ID `968`: [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b)
+- Fastest path with no local setup: [Verification](#verification) — 118 contract tests plus archived on-chain evidence.
+- Guided walkthrough: [DEMO.md](DEMO.md). Full session evidence: [SESSION-HANDOFF.md](SESSION-HANDOFF.md).
+
+No public frontend URL exists; the frontend is verified locally. See [Local frontend setup](#local-frontend-setup).
+
+## MVP scope
+
+Two independent wallets can create and accept a reciprocal commitment, lock equal BOT collateral, submit proof independently, review counterparty proof, deterministically settle the outcome, and withdraw funds without administrator intervention.
+
+Out of scope for the submitted build: dispute/resolve UI controls, arbiters in the demo flow, tokens, oracles, DAOs, NFTs, chat, multi-party commitments, unequal collateral, admin override, and upgradeable proxies.
 
 ## Problem
 
@@ -104,25 +121,54 @@ npm ci
 npm run dev
 ```
 
-Other verified frontend commands:
+`npm run dev` starts the Next.js development server. `npm run build` creates the production build; `npm start` serves that build. See [Verification](#verification) for the full command list.
+
+## Verification
+
+All commands run from the repository root. Foundry is the only requirement for the contract tests; Node.js is required only for the frontend.
+
+### Contract tests (118 tests, no Docker needed)
+
+On Windows, Foundry installs to `%USERPROFILE%\.foundry\bin` and is not added to `PATH` by default, so call the binary directly. Git Bash / MSYS:
 
 ```bash
-cd frontend
-npm test
-npm run lint
-npm run build
+cd /d/VOW
+"$USERPROFILE/.foundry/bin/forge.exe" test
 ```
 
-`npm run dev` starts the Next.js development server. `npm run build` creates the production build; `npm start` serves that build.
+PowerShell / cmd.exe:
 
-## Solidity tests
+```powershell
+cd D:\VOW
+& "$env:USERPROFILE\.foundry\bin\forge.exe" test
+```
 
-Local Forge is not assumed. Run Foundry through the established Docker workflow from the repository root:
+Expected output:
+
+```text
+Ran 8 test suites: 118 tests passed, 0 failed, 0 skipped (118 total tests)
+```
+
+If `forge` is on `PATH`, plain `forge test` is equivalent.
+
+### Fallback: Docker
+
+Use this when no local Foundry install exists.
 
 ```bash
 docker run --rm --entrypoint forge -v D:/VOW:/work -w /work ghcr.io/foundry-rs/foundry:stable fmt --check
 docker run --rm --entrypoint forge -v D:/VOW:/work -w /work ghcr.io/foundry-rs/foundry:stable build
 docker run --rm --entrypoint forge -v D:/VOW:/work -w /work ghcr.io/foundry-rs/foundry:stable test -vvv
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm ci
+npm test
+npm run lint
+npm run build
 ```
 
 ## Project structure
@@ -136,6 +182,8 @@ docker run --rm --entrypoint forge -v D:/VOW:/work -w /work ghcr.io/foundry-rs/f
 
 ## Demo path
 
+Full runbook, including pre-demo checklist and failure-path fallback: [DEMO.md](DEMO.md).
+
 1. Connect a wallet on Bohr Testnet.
 2. Inspect VOW #1 and its archived evidence.
 3. Explain Create → Accept → Prove → Review → Settle → Withdraw.
@@ -144,12 +192,17 @@ docker run --rm --entrypoint forge -v D:/VOW:/work -w /work ghcr.io/foundry-rs/f
 
 ## Known limitations
 
-- Current frontend focuses on the happy path.
+- **VOW does not independently verify real-world truth.**
+- The current frontend focuses on the happy path.
 - Complete Dispute / Resolve UI is not exposed in the submitted frontend.
 - No public frontend URL is currently documented.
-- Solidity testing is documented through the Docker-based Foundry workflow.
+- Solidity testing is documented through both local Foundry and the Docker-based Foundry workflow.
 
 These are submitted-scope limitations, not claims that the contract's tested dispute logic is absent.
+
+### Verification model
+
+Participants are promisor and counterparty to each other. Each one submits a public proof reference and is reviewed by the other. Approval marks that side SUCCESS; a rejection opens DISPUTED instead of failing it, and the pre-agreed arbiter (or the dispute deadline) resolves it. The contract enforces custody, authorization, deadlines, and settlement; humans judge whether a real-world proof is genuine. That split is the trust boundary, not a gap.
 
 ## License
 
