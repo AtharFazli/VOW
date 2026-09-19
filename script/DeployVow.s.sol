@@ -5,19 +5,25 @@ import "forge-std/Script.sol";
 import "../src/Vow.sol";
 
 contract DeployVow is Script {
-    // ponytail: hardcoded testnet failure sink — immutable after deploy
-    address constant FAILURE_SINK = 0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B;
+    // ponytail: two chains only (Bohr 968, BOT 677); widen to a set if a third appears
+    uint256 constant BOHR_TESTNET = 968;
+    uint256 constant BOT_MAINNET = 677;
 
     function run() external {
-        require(block.chainid == 968, "Wrong chain");
-        require(FAILURE_SINK != address(0), "Zero failure sink");
+        require(block.chainid == BOHR_TESTNET || block.chainid == BOT_MAINNET, "Wrong chain");
 
+        // failureSink is immutable after deploy: read it, never default it.
+        // A fallback here would silently bake the wrong sink into a live contract.
+        // Zero is rejected by Vow's constructor (ZeroAddress), so no check here.
+        address failureSink = vm.envAddress("FAILURE_SINK");
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
+
         vm.startBroadcast(deployerKey);
-        Vow vow = new Vow(FAILURE_SINK);
+        Vow vow = new Vow(failureSink);
         vm.stopBroadcast();
 
+        console.log("Chain ID:", block.chainid);
         console.log("Vow deployed at:", address(vow));
-        console.log("Failure sink:", FAILURE_SINK);
+        console.log("Failure sink:", failureSink);
     }
 }
