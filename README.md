@@ -63,6 +63,30 @@ The frontend reads and writes the deployed `Vow` contract. The contract stores r
 
 The submitted frontend demonstrates the verified happy path: wallet connection, VOW creation, acceptance, proof submission, counterparty review, finalization, and withdrawal. The contract's dispute and arbiter-resolution logic exists and is Solidity-tested. Complete Dispute / Resolve controls are NOT exposed in the current submitted frontend.
 
+## Deployment
+
+Contract addresses for judges:
+
+| Network | Chain ID | Contract address |
+| --- | --- | --- |
+| BOT Chain Testnet (Bohr) | `968` | [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b) |
+| BOT Chain Mainnet | `677` | _pending — see below_ |
+
+Testnet explorer: [https://scan.bohr.life](https://scan.bohr.life)
+Mainnet explorer: [https://scan.botchain.ai](https://scan.botchain.ai)
+
+Testnet RPC: `https://rpc.bohr.life`
+Mainnet RPC: `https://rpc.botchain.ai`
+
+The mainnet address is filled in after deployment. The deploy script (`script/DeployVow.s.sol`)
+is chain-guarded to `968` and `677` and reads `FAILURE_SINK` from the environment with no
+fallback, so the sink cannot silently default to the wrong chain.
+
+> **Before deploying to mainnet:** `FAILURE_SINK` is a constructor argument and is
+> immutable. It must be set to a mainnet address. Deploying with the testnet sink
+> (`0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B`) would route failed-collateral payouts on
+> mainnet to a testnet address permanently, with no correction path.
+
 ## Network and deployment
 
 - Network: Bohr Testnet
