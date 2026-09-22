@@ -9,7 +9,8 @@ VOW is a two-person reciprocal commitment protocol. Both participants lock equal
 ## Judge entry point
 
 - Repository: [github.com/AtharFazli/VOW](https://github.com/AtharFazli/VOW)
-- Deployed contract, Bohr Testnet chain ID `968`: [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b)
+- Deployed contract, BOT Chain Mainnet chain ID `677`: [`0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4`](https://scan.botchain.ai/address/0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4) — source verified
+- Deployed contract, Bohr Testnet chain ID `968`: [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b) — source verified
 - Fastest path with no local setup: [Verification](#verification) — 118 contract tests plus archived on-chain evidence.
 - Guided walkthrough: [DEMO.md](DEMO.md). Full session evidence: [SESSION-HANDOFF.md](SESSION-HANDOFF.md).
 
@@ -67,10 +68,10 @@ The submitted frontend demonstrates the verified happy path: wallet connection, 
 
 Contract addresses for judges:
 
-| Network | Chain ID | Contract address |
-| --- | --- | --- |
-| BOT Chain Testnet (Bohr) | `968` | [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b) |
-| BOT Chain Mainnet | `677` | _pending — see below_ |
+| Network | Chain ID | Contract address | Source verified |
+| --- | --- | --- | --- |
+| BOT Chain Mainnet | `677` | [`0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4`](https://scan.botchain.ai/address/0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4) | Yes |
+| BOT Chain Testnet (Bohr) | `968` | [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b) | Yes |
 
 Testnet explorer: [https://scan.bohr.life](https://scan.bohr.life)
 Mainnet explorer: [https://scan.botchain.ai](https://scan.botchain.ai)
@@ -78,14 +79,14 @@ Mainnet explorer: [https://scan.botchain.ai](https://scan.botchain.ai)
 Testnet RPC: `https://rpc.bohr.life`
 Mainnet RPC: `https://rpc.botchain.ai`
 
-The mainnet address is filled in after deployment. The deploy script (`script/DeployVow.s.sol`)
-is chain-guarded to `968` and `677` and reads `FAILURE_SINK` from the environment with no
-fallback, so the sink cannot silently default to the wrong chain.
+Both deployments are the same `src/Vow.sol` compiled with Solidity `0.8.24`, optimizer
+enabled at 200 runs, `viaIR`, `evmVersion: cancun`. Each carries a different immutable
+`failure sink`: the mainnet sink is the deployer address, the testnet sink is the
+documented testnet address. The sink is a constructor argument with no fallback in the
+deploy script, so it cannot silently default to the wrong chain.
 
-> **Before deploying to mainnet:** `FAILURE_SINK` is a constructor argument and is
-> immutable. It must be set to a mainnet address. Deploying with the testnet sink
-> (`0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B`) would route failed-collateral payouts on
-> mainnet to a testnet address permanently, with no correction path.
+Mainnet deployment transaction:
+[`0x694234a9cad6d0162646c9661560bc2438f4175ae132dffee75c235c6ba320a7`](https://scan.botchain.ai/tx/0x694234a9cad6d0162646c9661560bc2438f4175ae132dffee75c235c6ba320a7)
 
 ## Network and deployment
 
@@ -93,7 +94,7 @@ fallback, so the sink cannot silently default to the wrong chain.
 - Chain ID: `968`
 - RPC: `https://rpc.bohr.life`
 - Explorer: [https://scan.bohr.life](https://scan.bohr.life)
-- Contract: [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b)
+- Contract: [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b) — source verified
 - Failure sink: `0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B`
 
 No public frontend URL is documented here.
