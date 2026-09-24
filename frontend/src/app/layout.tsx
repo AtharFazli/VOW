@@ -15,7 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VOW: Collateralized Promises",
+  // ponytail: template brands child routes; landing keeps the descriptive default
+  title: {
+    default: "VOW: Collateralized Promises",
+    template: "%s | VOW",
+  },
   description:
     "Peer-to-peer commitment protocol. Put BOT behind promises you make to each other.",
 };
