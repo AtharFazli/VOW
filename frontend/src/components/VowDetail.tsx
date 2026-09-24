@@ -13,10 +13,15 @@ function shorten(addr: Address): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`
 }
 
+// ponytail: NEXT_PUBLIC_* is inlined at build time. Normalized once here so a
+// value with or without a trailing slash resolves the same, and `ipfs://` CIDs
+// never double the slash.
+const IPFS_GATEWAY = (process.env.NEXT_PUBLIC_IPFS_GATEWAY || 'https://ipfs.io/ipfs/').replace(/\/+$/, '/')
+
 function proofDisplay(uri: string): { label: string; href: string | null } {
   if (!uri) return { label: '—', href: null }
   if (uri.startsWith('https://') || uri.startsWith('ipfs://')) {
-    const href = uri.startsWith('ipfs://') ? `https://ipfs.io/ipfs/${uri.slice(7)}` : uri
+    const href = uri.startsWith('ipfs://') ? `${IPFS_GATEWAY}${uri.slice(7)}` : uri
     return { label: uri.length > 40 ? uri.slice(0, 37) + '...' : uri, href }
   }
   // ponytail: reject unsafe schemes, show as plain text
