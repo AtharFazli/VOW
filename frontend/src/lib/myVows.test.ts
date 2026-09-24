@@ -110,6 +110,17 @@ describe('groupVows', () => {
     expect(needsAction).toBeDefined()
   })
 
+  it('groups SETTLED with unclaimed balance into Needs Action, not Completed', () => {
+    const vow = makeVow({ status: VowStatus.SETTLED })
+    const card = makeCard(0n, vow, 'creator')
+    const actionsMap = new Map([['0', ['claim']]])
+    const groups = groupVows([card], actionsMap)
+    const needsAction = groups.find((g) => g.label === 'Needs Action')
+    expect(needsAction).toBeDefined()
+    expect(needsAction!.cards).toHaveLength(1)
+    expect(groups.find((g) => g.label === 'Completed')).toBeUndefined()
+  })
+
   it('no groups when cards empty', () => {
     const groups = groupVows([], new Map())
     expect(groups).toHaveLength(0)

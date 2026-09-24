@@ -75,7 +75,13 @@ export function groupVows(
 
   for (const card of cards) {
     const actions = actionsMap.get(card.id.toString()) ?? []
-    if (card.vow.status === VowStatus.SETTLED) {
+    // Claim first: a SETTLED vow with an unclaimed balance still needs the user.
+    // ponytail: account-level pool, so every settled card shows Claim while a
+    // balance exists — withdraw() drains all of it at once. Per-vow attribution
+    // would need a contract change; out of scope.
+    if (actions.includes('claim')) {
+      needsAction.push(card)
+    } else if (card.vow.status === VowStatus.SETTLED) {
       completed.push(card)
     } else if (hasNeedsAction(card.vow, card.role, actions)) {
       needsAction.push(card)

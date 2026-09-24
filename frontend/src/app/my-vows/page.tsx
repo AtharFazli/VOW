@@ -15,6 +15,8 @@ export default function MyVowsPage() {
   const { address, isConnected, chain } = useAccount()
   const { timestamp: chainTime } = useChainTime()
   const [cards, setCards] = useState<VowCard[]>([])
+  // ponytail: account-level pool (Vow.sol mapping(address=>uint256)), not per-vow
+  const [claimable, setClaimable] = useState(0n)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -45,7 +47,19 @@ export default function MyVowsPage() {
           return
         }
 
-        // Step 2: read each vow
+        // Step 2: read account-level withdrawable balance so settled-but-unclaimed
+        // vows surface as Needs Action instead of falling through to Completed.
+        const balance = (await readContract(config, {
+          address: VOW_ADDRESS,
+          abi: VOW_ABI,
+          functionName: 'claimable',
+          args: [address!],
+          chainId: VOW_CHAIN.id,
+        })) as bigint
+        if (cancelled) return
+        setClaimable(balance)
+
+        // Step 3: read each vow
         const parsed: VowCard[] = []
         for (const id of ids) {
           try {
@@ -87,11 +101,11 @@ export default function MyVowsPage() {
     const map = new Map<string, string[]>()
     const now = chainTime ?? 0
     for (const card of cards) {
-      const actions = getAvailableActions(card.vow, card.role, now)
+      const actions = getAvailableActions(card.vow, card.role, now, claimable)
       map.set(card.id.toString(), actions)
     }
     return map
-  }, [cards, chainTime])
+  }, [cards, chainTime, claimable])
 
   const groups = useMemo(() => groupVows(cards, actionsMap), [cards, actionsMap])
 
