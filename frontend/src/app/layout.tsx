@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // ponytail: og:image must be an absolute URL; NEXT_PUBLIC_SITE_URL in prod,
+  // localhost fallback keeps dev and build working with no extra env plumbing.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   // ponytail: template brands child routes; landing keeps the descriptive default
   title: {
     default: "VOW: Collateralized Promises",
@@ -22,6 +25,24 @@ export const metadata: Metadata = {
   },
   description:
     "Peer-to-peer commitment protocol. Put BOT behind promises you make to each other.",
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "VOW",
+    locale: "en_US",
+    images: [
+      {
+        url: "/vow-app.png",
+        width: 1200,
+        height: 1090,
+        alt: "VOW — put BOT behind promises you make to each other",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/vow-app.png"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
