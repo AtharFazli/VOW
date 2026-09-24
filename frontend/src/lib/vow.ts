@@ -105,6 +105,20 @@ export function getAvailableActions(
   return actions
 }
 
+// The actions the UI knows how to render. ActionPanel derives its empty-state from
+// this list, so any VowAction emitted by getAvailableActions but missing here would
+// render a section with a heading and no buttons. Kept next to getAvailableActions
+// so the two are read together; the F5 test asserts they never drift.
+export const RENDERABLE_ACTIONS = [
+  'accept',
+  'submitProof',
+  'approve',
+  'dispute',
+  'resolveDispute',
+  'finalize',
+  'claim',
+] as const satisfies readonly VowAction[]
+
 // ponytail: simple zero-address check for arbiter presence
 export function hasArbiter(vow: VowData): boolean {
   return vow.arbiter !== '0x0000000000000000000000000000000000000000'

@@ -4,9 +4,9 @@ import { useState } from 'react'
 import { type Address } from 'viem'
 import { VOW_CHAIN } from '@/lib/contract'
 import { isTxPending, useVowWrite, proofHashFromUri, type TxPhase } from '@/lib/useVowWrite'
-import { buildVowWriteRequest } from '@/lib/vowActions'
-import { type VowData, type VowRole } from '@/lib/types'
-import { getAvailableActions, formatStake } from '@/lib/vow'
+import { buildVowWriteRequest, buildResolveDisputeRequest, disputedParticipants } from '@/lib/vowActions'
+import { type VowData, type VowRole, type VowAction } from '@/lib/types'
+import { getAvailableActions, formatStake, RENDERABLE_ACTIONS } from '@/lib/vow'
 
 function TxStatus({ phase, txHash, error, explorerUrl }: {
   phase: TxPhase; txHash: string | null; error: string | null; explorerUrl: string | null
@@ -69,28 +69,42 @@ export function ActionPanel({
   const approve = useVowWrite()
   const finalize = useVowWrite()
   const withdraw = useVowWrite()
+  const resolveDispute = useVowWrite()
+  const dispute = useVowWrite()
   const [proofUri, setProofUri] = useState('')
+  const [disputeReason, setDisputeReason] = useState('')
 
   // Canonical eligibility. Null chain time fails closed in getAvailableActions callers.
   const available = chainTime === null || chainId !== VOW_CHAIN.id
     ? []
     : getAvailableActions(vow, role, chainTime, claimable)
-  const has = (action: 'accept' | 'submitProof' | 'approve' | 'finalize' | 'claim') => available.includes(action)
-  const busy = [accept, submitProof, approve, finalize, withdraw].some(w => isTxPending(w.phase))
+  const has = (action: VowAction) => available.includes(action)
+  const busy = [accept, submitProof, approve, finalize, withdraw, resolveDispute, dispute].some(w => isTxPending(w.phase))
   const networkReady = chainId === VOW_CHAIN.id
+  const canResolve = has('resolveDispute')
+  const disputed = canResolve ? disputedParticipants(vow) : []
 
-  async function execute(action: 'accept' | 'submitProof' | 'approve' | 'finalize' | 'withdraw', writer: ReturnType<typeof useVowWrite>, proof = '') {
+  async function execute(action: 'accept' | 'submitProof' | 'approve' | 'dispute' | 'finalize' | 'withdraw', writer: ReturnType<typeof useVowWrite>, proof = '', reason = '') {
     if (!networkReady || busy) return
     if (action !== 'withdraw' && !has(action)) return
     if (action === 'withdraw' && !has('claim')) return
-    const request = buildVowWriteRequest(action, vow, vowId, role, proof)
+    const request = buildVowWriteRequest(action, vow, vowId, role, proof, reason)
     if (!request) return
     await writer.execute({ ...request, account: address })
   }
 
-  const hasAction = available.length > 0
+  async function executeResolve(participant: Address, proofValid: boolean) {
+    if (!networkReady || busy || !canResolve) return
+    await resolveDispute.execute({ ...buildResolveDisputeRequest(vowId, participant, proofValid), account: address })
+  }
 
-  if (!hasAction) {
+  // hasAction is derived from what actually renders below, not from the raw action
+  // list: the two must not drift apart, or the section renders a heading with no
+  // buttons. Exhaustive check, so adding a VowAction without a branch fails the build.
+  const rendered = RENDERABLE_ACTIONS.filter(a => available.includes(a))
+  const unmapped = available.filter(a => !rendered.includes(a))
+
+  if (rendered.length === 0 || unmapped.length > 0) {
     return (
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
         <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Actions</h2>
@@ -123,11 +137,35 @@ export function ActionPanel({
         <TxStatus {...approve} />
       </div>}
 
+      {has('dispute') && <div>
+        <p className="text-xs text-zinc-400 mb-2">Dispute the counterparty&apos;s proof. The contract rejects an empty reason.</p>
+        <input type="text" value={disputeReason} onChange={e => setDisputeReason(e.target.value)} placeholder="Why is this proof invalid?" disabled={busy}
+          className="mb-2 w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500" />
+        <ActionButton label="Dispute Proof" onClick={() => execute('dispute', dispute, '', disputeReason)} loading={busy} disabled={!disputeReason.trim()} />
+        <TxStatus {...dispute} />
+      </div>}
+
       {has('finalize') && <div>
         <p className="text-xs text-zinc-400 mb-2">Settle this VOW and distribute stakes.</p>
         <ActionButton label="Finalize VOW" onClick={() => execute('finalize', finalize)} loading={busy} />
         <TxStatus {...finalize} />
       </div>}
+
+      {canResolve && disputed.map(participant => {
+        const label = participant === vow.creator ? 'Creator' : 'Partner'
+        return (
+          <div key={participant}>
+            <p className="text-xs text-zinc-400 mb-2">
+              Arbitrate {label}&apos;s disputed proof. Upholding marks it Success; rejecting marks it Failed.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <ActionButton label={`Uphold ${label}`} onClick={() => executeResolve(participant, true)} loading={busy} />
+              <ActionButton label={`Reject ${label}`} onClick={() => executeResolve(participant, false)} loading={busy} />
+            </div>
+            <TxStatus {...resolveDispute} />
+          </div>
+        )
+      })}
 
       {has('claim') && <div>
         <p className="text-xs text-zinc-400 mb-2">Withdraw your claimable {formatStake(claimable)}.</p>

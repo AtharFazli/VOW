@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { type Address, keccak256, toBytes } from 'viem'
-import { ParticipantStatus, VowStatus, type VowData } from './types'
-import { getAvailableActions } from './vow'
-import { buildVowWriteRequest, reviewParticipant } from './vowActions'
+import { ParticipantStatus, VowStatus, type VowData, type VowRole } from './types'
+import { getAvailableActions, RENDERABLE_ACTIONS } from './vow'
+import { buildVowWriteRequest, buildResolveDisputeRequest, disputedParticipants, reviewParticipant } from './vowActions'
 import { isTxPending, receiptPhase, proofHashFromUri } from './useVowWrite'
 
 const ZERO = '0x0000000000000000000000000000000000000000' as Address
@@ -95,5 +95,62 @@ describe('Gate S transaction state helpers', () => {
   it('only reports confirmed after successful receipt', () => {
     expect(receiptPhase('success')).toBe('confirmed')
     expect(receiptPhase('reverted')).toBe('error')
+  })
+})
+
+describe('F5 — resolveDispute renders and is reachable', () => {
+  const ARBITER = '0x3333333333333333333333333333333333333333' as Address
+
+  // Shared with ActionPanel via RENDERABLE_ACTIONS: the panel derives its empty
+  // state from that same list, so any action the panel cannot render turns the
+  // section into a heading with zero buttons — the F5 bug.
+  const RENDERABLE = RENDERABLE_ACTIONS
+
+  function arbiterVow(overrides: Partial<VowData> = {}): VowData {
+    return vow({
+      arbiter: ARBITER, status: VowStatus.ACTIVE, disputeDeadline: 4000n,
+      partnerStatus: ParticipantStatus.DISPUTED, ...overrides,
+    })
+  }
+
+  it('arbiter-only resolveDispute is in the renderable set', () => {
+    const actions = getAvailableActions(arbiterVow(), 'arbiter', 4000)
+    expect(actions).toEqual(['resolveDispute'])
+    expect(actions.every(a => RENDERABLE.includes(a as typeof RENDERABLE[number]))).toBe(true)
+  })
+
+  it('every action getAvailableActions can emit is renderable', () => {
+    const combos: Array<[VowData, VowRole, number, bigint]> = [
+      [vow(), 'partner', 999, 0n],
+      [vow({ status: VowStatus.ACTIVE }), 'creator', 2000, 0n],
+      [vow({ status: VowStatus.ACTIVE, partnerStatus: ParticipantStatus.PROOF_SUBMITTED }), 'creator', 3000, 0n],
+      [arbiterVow(), 'arbiter', 4000, 0n],
+      [vow({ status: VowStatus.ACTIVE, creatorStatus: ParticipantStatus.SUCCESS, partnerStatus: ParticipantStatus.SUCCESS }), 'observer', 1, 0n],
+      [vow(), 'creator', 1, 1n],
+    ]
+    for (const [v, role, now, claimable] of combos) {
+      for (const action of getAvailableActions(v, role, now, claimable)) {
+        expect(RENDERABLE).toContain(action)
+      }
+    }
+  })
+
+  it('collects each disputed participant so both can be resolved separately', () => {
+    expect(disputedParticipants(arbiterVow())).toEqual([PARTNER])
+    expect(disputedParticipants(arbiterVow({ creatorStatus: ParticipantStatus.DISPUTED }))).toEqual([CREATOR, PARTNER])
+    expect(disputedParticipants(vow({ status: VowStatus.ACTIVE }))).toEqual([])
+  })
+
+  it('builds resolveDispute with participant and proofValid positionally', () => {
+    expect(buildResolveDisputeRequest(7n, PARTNER, true)).toEqual({
+      functionName: 'resolveDispute', args: [7n, PARTNER, true],
+    })
+    expect(buildResolveDisputeRequest(7n, CREATOR, false)).toEqual({
+      functionName: 'resolveDispute', args: [7n, CREATOR, false],
+    })
+  })
+
+  it('reviewParticipant stays null for arbiter so the review path cannot target itself', () => {
+    expect(reviewParticipant(arbiterVow(), 'arbiter')).toBeNull()
   })
 })
