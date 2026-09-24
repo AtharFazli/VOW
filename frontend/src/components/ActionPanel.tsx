@@ -104,7 +104,7 @@ export function ActionPanel({
       <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Actions</h2>
 
       {has('accept') && <div>
-        <p className="text-xs text-zinc-400 mb-2">Accept this VOW by locking {formatStake(vow.stake)} BOT as your stake.</p>
+        <p className="text-xs text-zinc-400 mb-2">Accept this VOW by locking {formatStake(vow.stake)} as your stake.</p>
         <ActionButton label="Accept VOW" onClick={() => execute('accept', accept)} loading={busy} />
         <TxStatus {...accept} />
       </div>}
@@ -130,7 +130,7 @@ export function ActionPanel({
       </div>}
 
       {has('claim') && <div>
-        <p className="text-xs text-zinc-400 mb-2">Withdraw your claimable {formatStake(claimable)} BOT.</p>
+        <p className="text-xs text-zinc-400 mb-2">Withdraw your claimable {formatStake(claimable)}.</p>
         <ActionButton label="Withdraw" onClick={() => execute('withdraw', withdraw)} loading={busy} />
         <TxStatus {...withdraw} />
       </div>}
