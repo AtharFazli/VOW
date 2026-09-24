@@ -177,7 +177,7 @@ These hold up and should be submitted as-is:
 - **On-chain evidence.** VOW #1 completed the full happy path on Bohr testnet — 9
   transaction hashes in the README, all verifiable. Contract balance returns to 0,
   double-withdraw correctly reverts with `NothingToWithdraw()`.
-- **Frontend.** 102 tests passing, ESLint clean, production build succeeds.
+- **Frontend.** 112 tests passing across 7 files, ESLint clean, production build succeeds.
 - **Launch video.** Real, finished, 20.2 s.
 - **Frozen release.** Tag `v1.0.0-hackathon-final` is pushed to the remote.
 
@@ -200,7 +200,7 @@ interact — this would have broken that on first click.
 The same hardcoded assumption appeared in 6 more places (user-facing strings in
 `my-vows/page.tsx`, `ContractStatus.tsx`, `CreateVowForm.tsx`, `VowDetail.tsx`,
 `useVowWrite.ts`). All now derive from `VOW_CHAIN`, so one env var switches the whole app
-between testnet and mainnet. Re-verified: 102 tests pass, ESLint clean, build succeeds.
+between testnet and mainnet. Re-verified: 112 tests pass across 7 files, ESLint clean, build succeeds.
 
 ---
 
