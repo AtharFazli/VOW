@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ponytail: .env* swallows the template too; re-include it so the documented
+# site origin is actually visible to git (root .gitignore already does this).
+!.env.example
 
 # vercel
 .vercel

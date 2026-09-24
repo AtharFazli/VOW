@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,9 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  // ponytail: og:image must be an absolute URL; NEXT_PUBLIC_SITE_URL in prod,
-  // localhost fallback keeps dev and build working with no extra env plumbing.
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  // ponytail: og:image must be an absolute URL; SITE_URL resolves it (see lib/site.ts).
+  metadataBase: new URL(SITE_URL),
   // ponytail: template brands child routes; landing keeps the descriptive default
   title: {
     default: "VOW: Collateralized Promises",
