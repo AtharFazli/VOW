@@ -20,7 +20,7 @@ No public frontend URL exists; the frontend is verified locally. See [Local fron
 
 Two independent wallets can create and accept a reciprocal commitment, lock equal BOT collateral, submit proof independently, review counterparty proof, deterministically settle the outcome, and withdraw funds without administrator intervention.
 
-Out of scope for the submitted build: dispute/resolve UI controls, arbiters in the demo flow, tokens, oracles, DAOs, NFTs, chat, multi-party commitments, unequal collateral, admin override, and upgradeable proxies.
+Out of scope for the submitted build: arbiters in the demo flow, tokens, oracles, DAOs, NFTs, chat, multi-party commitments, unequal collateral, admin override, and upgradeable proxies.
 
 ## Problem
 
@@ -62,7 +62,7 @@ The frontend reads and writes the deployed `Vow` contract. The contract stores r
 
 ## Current submitted scope
 
-The submitted frontend demonstrates the verified happy path: wallet connection, VOW creation, acceptance, proof submission, counterparty review, finalization, and withdrawal. The contract's dispute and arbiter-resolution logic exists and is Solidity-tested. Complete Dispute / Resolve controls are NOT exposed in the current submitted frontend.
+The submitted frontend demonstrates the verified happy path: wallet connection, VOW creation, acceptance, proof submission, counterparty review, finalization, and withdrawal. It also exposes the dispute path: Dispute Proof for participants and Resolve Dispute (Uphold or Reject, per disputed participant) for the configured arbiter, both rendered in `ActionPanel.tsx`. The contract's dispute and arbiter-resolution logic exists and is Solidity-tested. The recorded on-chain run (Gate T) exercised the happy path only, so the dispute path is evidenced by the frontend unit tests and the Solidity suite.
 
 ## Deployment
 
@@ -218,8 +218,8 @@ Full runbook, including pre-demo checklist and failure-path fallback: [DEMO.md](
 ## Known limitations
 
 - **VOW does not independently verify real-world truth.**
-- The current frontend focuses on the happy path.
-- Complete Dispute / Resolve UI is not exposed in the submitted frontend.
+- The current frontend covers the full action set, including the dispute path.
+- Dispute Proof and Resolve Dispute render in `ActionPanel.tsx`; the on-chain run recorded in Gate T exercised the happy path only.
 - No public frontend URL is currently documented.
 - Solidity testing is documented through both local Foundry and the Docker-based Foundry workflow.
 

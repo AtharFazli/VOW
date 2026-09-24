@@ -115,7 +115,7 @@ No arbitrary withdrawal exists. Funds become claimable only through the contract
 
 ### What happens in disputes?
 
-Dispute and arbiter-resolution logic exists in the Solidity contract and is Solidity-tested. The current submitted frontend focuses on the happy path; complete Dispute / Resolve controls are not exposed in the current frontend. A configured arbiter can resolve a disputed proof before the dispute deadline. Otherwise, an unresolved dispute becomes `UNRESOLVED` after the deadline and follows the documented settlement rules.
+Dispute and arbiter-resolution logic exists in the Solidity contract and is Solidity-tested, and the submitted frontend exposes it: a participant can Dispute Proof (a reason is required by the contract), and a configured arbiter can Resolve Dispute with an Uphold or Reject choice per disputed participant. A configured arbiter can resolve a disputed proof before the dispute deadline. Otherwise, an unresolved dispute becomes `UNRESOLVED` after the deadline and follows the documented settlement rules.
 
 ### Is this running on mainnet?
 
@@ -123,7 +123,7 @@ No. The deployment documented here is Bohr Testnet, chain ID `968`, at contract 
 
 ### Has the full flow actually been tested?
 
-The happy path was tested end-to-end on deployed VOW #1 with two participant wallets. Gate T recorded nine successful transactions: create, accept, two proofs, two reviews, finalize, and two withdrawals. This does not claim that the current frontend exposes the complete dispute workflow.
+The happy path was tested end-to-end on deployed VOW #1 with two participant wallets. Gate T recorded nine successful transactions: create, accept, two proofs, two reviews, finalize, and two withdrawals. The dispute path is exposed in the frontend and covered by the frontend unit tests and the Solidity suite; Gate T did not exercise it on-chain.
 
 ## G. Demo failure fallback
 
@@ -223,4 +223,4 @@ Network: Bohr Testnet, chain ID `968`
 
 ## Scope note
 
-The submitted frontend demonstrates the verified happy path. Dispute and arbiter-resolution logic exists in the Solidity contract and is Solidity-tested, but complete Dispute / Resolve controls are not exposed in the current submitted frontend.
+The submitted frontend demonstrates the verified happy path. Dispute and arbiter-resolution logic exists in the Solidity contract and is Solidity-tested, and both are exposed in the submitted frontend: Dispute Proof for participants, Resolve Dispute (Uphold or Reject) for the configured arbiter, rendered in `ActionPanel.tsx`.
