@@ -8,6 +8,34 @@ actual remote git refs — not against the project's own documentation.
 
 ---
 
+## Re-verification — 24 September 2026
+
+Same method as above. The two blockers named in this audit are resolved; one
+requirement is still open. Live evidence:
+
+| # | Requirement | Audited 20 Sep | Now | Evidence |
+| --- | --- | --- | --- | --- |
+| 1 | Contract address on BOT Chain | MISSING | **MET** | `0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4` — deploy tx `0x694234a9…320a7` status `0x1`, block `0x16fa844`, source verified on `scan.botchain.ai` (`file_path` `src/Vow.sol`) |
+| 2 | Live website on a real domain | MISSING | **STILL MISSING** | `vowprotocol.web.id` does not resolve. Cloudflare DoH: `EDE(22) No Reachable Authority`, `EDE(23) 103.25.222.114:53 returned REFUSED`. No public URL is documented. |
+| 3 | GitHub repo with `.sol` + README | BROKEN (main empty) | **MET** | `origin/main` = `be79075`, 20 commits; `.sol` and `README.md` present on the default branch |
+| 4 | X post tagging @BOTChain_ai | MISSING | not re-checked | outside repository scope |
+| 5 | 5 posts in the 30 days before submission | IMPOSSIBLE | unchanged | window closed |
+| 6 | Mainnet launch announcement | MISSING | blocked on #2 | needs a live URL to announce |
+| 7 | BOT Chain branding on-site | code ready | code ready, + badge | `SiteFooter.tsx` links the mainnet contract on `scan.botchain.ai` |
+
+- **Blocker 1 resolved.** `main` carries the full project; the default branch a judge
+  lands on is no longer empty.
+- **Blocker 2 resolved.** Mainnet deployment exists, is source-verified, and reads back
+  correct: `failureSink()` → `0x8d9165F2eDF3Ec10659A0762112DE9e007619aE7` (matches the
+  constructor argument), `nextVowId()` → `0`. Deployer balance is now `0.03942662 BOT`
+  (was `0.01474882`), so the funding shortfall recorded below is closed.
+- **Requirement 2 is the remaining open item.** The production build now targets mainnet
+  by default (committed `frontend/.env.production`), but a build that no one can reach is
+  still not a live website. Publishing it to a resolving domain is what closes #2 and
+  unblocks #6.
+
+---
+
 ## Verdict
 
 **Not submittable today.** Two of the seven required items are missing entirely, one is
@@ -177,7 +205,7 @@ These hold up and should be submitted as-is:
 - **On-chain evidence.** VOW #1 completed the full happy path on Bohr testnet — 9
   transaction hashes in the README, all verifiable. Contract balance returns to 0,
   double-withdraw correctly reverts with `NothingToWithdraw()`.
-- **Frontend.** 112 tests passing across 7 files, ESLint clean, production build succeeds.
+- **Frontend.** 115 tests passing across 7 files, ESLint clean, production build succeeds.
 - **Launch video.** Real, finished, 20.2 s.
 - **Frozen release.** Tag `v1.0.0-hackathon-final` is pushed to the remote.
 
@@ -200,7 +228,7 @@ interact — this would have broken that on first click.
 The same hardcoded assumption appeared in 6 more places (user-facing strings in
 `my-vows/page.tsx`, `ContractStatus.tsx`, `CreateVowForm.tsx`, `VowDetail.tsx`,
 `useVowWrite.ts`). All now derive from `VOW_CHAIN`, so one env var switches the whole app
-between testnet and mainnet. Re-verified: 112 tests pass across 7 files, ESLint clean, build succeeds.
+between testnet and mainnet. Re-verified: 115 tests pass across 7 files, ESLint clean, build succeeds.
 
 ---
 

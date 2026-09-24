@@ -35,6 +35,12 @@ yarn-error.log*
 # ponytail: .env* swallows the template too; re-include it so the documented
 # site origin is actually visible to git (root .gitignore already does this).
 !.env.example
+# The mainnet build target must exist on the build machine without a manual
+# setup step, so it is committed. It holds public values only (they ship in the
+# client bundle). .env.development is committed for the same reason: it pins
+# `next dev` to testnet on every machine, so no local wallet can lock real BOT.
+!.env.production
+!.env.development
 
 # vercel
 .vercel

@@ -141,7 +141,7 @@ submitted proof, and after the delivery deadline the second side transitioned to
 | Language | TypeScript `5.9.3` |
 | Tests | Vitest `5.0.0` |
 
-Frontend test suite: **112 tests passed, 0 failed** across 7 files.
+Frontend test suite: **115 tests passed, 0 failed** across 7 files.
 Lint passes. Production build passes.
 
 Pages shipped:
@@ -333,15 +333,15 @@ CAST="$USERPROFILE/.foundry/bin/cast.exe"
 Result: `failureSink()` → `0x8d9165F2eDF3Ec10659A0762112DE9e007619aE7` (matches
 intent exactly), `nextVowId()` → `0`.
 
-### Step 6 — Point the frontend at mainnet
+### Step 6 — Point the frontend at mainnet — DONE
 
-The chain config, the mainnet `defineChain` entry, and the environment-driven
-address wiring all now live on `main`. What is missing is the mainnet build itself.
+The chain config, the mainnet `defineChain` entry, the environment-driven address
+wiring, and the mainnet build target all now live on `main` and are the default.
+No per-machine setup is required: **`npm run build` targets mainnet out of the box.**
 
 `NEXT_PUBLIC_*` values are inlined at build time, so they must be set before
-`next build`, not at runtime. There is currently no `frontend/.env.local`.
-
-Create `frontend/.env.local`:
+`next build`, not at runtime. They are committed in `frontend/.env.production`,
+which Next loads automatically for production builds:
 
 ```text
 NEXT_PUBLIC_VOW_CHAIN=mainnet
@@ -352,6 +352,17 @@ NEXT_PUBLIC_FAILURE_SINK=0x8d9165F2eDF3Ec10659A0762112DE9e007619aE7
 All three must be set together. `NEXT_PUBLIC_VOW_CHAIN=mainnet` alone is inert:
 `contract.ts` deliberately falls back to testnet when `NEXT_PUBLIC_VOW_ADDRESS`
 is absent, so that a mainnet UI can never point at the testnet contract.
+
+`.env.production` is committed on purpose: the submission target must not depend
+on a hand-created file existing on the build machine, which is what the earlier
+`frontend/.env.local` instruction required. Real environment variables set by the
+host still win over the file, so a non-mainnet demo deploy can override without a
+code change.
+
+`frontend/.env.development` is committed too, and pins `next dev` to Bohr testnet
+so a dev wallet cannot lock real BOT by accident. Both files hold public values
+only, and both are asserted by `src/lib/contract.test.ts` > "committed
+environment targets", which fails if either drifts from the verified addresses.
 
 Then rebuild and re-run the checks:
 
@@ -498,7 +509,7 @@ allows a paragraph.
 > lock equal BOT collateral behind promises they make to each other, submit
 > proof, review each other's proof, and let a smart contract settle the outcome
 > on fixed rules. No admin, no custodian, no database. 118 contract tests and
-> 112 frontend tests pass. Deployed on Bohr Chain with 19 on-chain transactions.
+> 115 frontend tests pass. Deployed on Bohr Chain with 19 on-chain transactions.
 
 ### Long version (about 180 words)
 
@@ -517,7 +528,7 @@ allows a paragraph.
 > People judge proof through counterparty review or a pre-agreed arbiter. That
 > split is the trust boundary, stated openly rather than papered over.
 >
-> Everything is verifiable. 118 contract tests and 112 frontend tests pass. The
+> Everything is verifiable. 118 contract tests and 115 frontend tests pass. The
 > full two-wallet lifecycle, including the failure path where a missed deadline
 > forfeits collateral, was executed on Bohr Chain and all nine transaction
 > receipts are archived in the README. Source is not yet verified on the explorer.
@@ -541,7 +552,7 @@ cd frontend && npm test && npm run lint && npm run build
 ```
 
 - [ ] Contract tests: 118 passed, 0 failed
-- [ ] Frontend tests: 112 passed, 0 failed
+- [ ] Frontend tests: 115 passed, 0 failed
 - [ ] Frontend lint and production build pass
 - [ ] Deployer funded on mainnet (step 1)
 - [ ] Mainnet `FAILURE_SINK` set deliberately and read back (step 2)
