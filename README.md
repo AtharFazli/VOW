@@ -11,10 +11,11 @@ VOW is a two-person reciprocal commitment protocol. Both participants lock equal
 - Repository: [github.com/AtharFazli/VOW](https://github.com/AtharFazli/VOW)
 - Deployed contract, BOT Chain Mainnet chain ID `677`: [`0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4`](https://scan.botchain.ai/address/0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4) — source verified
 - Deployed contract, Bohr Testnet chain ID `968`: [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b) — source verified
+- Live frontend, BOT Chain Mainnet: [https://vowprotocol.web.id](https://vowprotocol.web.id) (canonical `https://www.vowprotocol.web.id`)
 - Fastest path with no local setup: [Verification](#verification) — 118 contract tests plus archived on-chain evidence.
 - Guided walkthrough: [DEMO.md](DEMO.md). Full session evidence: [SESSION-HANDOFF.md](SESSION-HANDOFF.md).
 
-No public frontend URL exists; the frontend is verified locally. See [Local frontend setup](#local-frontend-setup).
+You can also run the frontend locally; see [Local frontend setup](#local-frontend-setup).
 
 ## MVP scope
 
@@ -90,14 +91,25 @@ Mainnet deployment transaction:
 
 ## Network and deployment
 
+Live frontend: [https://vowprotocol.web.id](https://vowprotocol.web.id) (canonical `https://www.vowprotocol.web.id`), serving the BOT Chain Mainnet build.
+
+BOT Chain Mainnet (default target):
+
+- Network: BOT Chain Mainnet
+- Chain ID: `677`
+- RPC: `https://rpc.botchain.ai`
+- Explorer: [https://scan.botchain.ai](https://scan.botchain.ai)
+- Contract: [`0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4`](https://scan.botchain.ai/address/0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4) — source verified
+- Failure sink: `0x8d9165F2eDF3Ec10659A0762112DE9e007619aE7`
+
+Bohr Testnet:
+
 - Network: Bohr Testnet
 - Chain ID: `968`
 - RPC: `https://rpc.bohr.life`
 - Explorer: [https://scan.bohr.life](https://scan.bohr.life)
 - Contract: [`0x9539263f4861812B08C37Bb3cB6603c771d6530b`](https://scan.bohr.life/address/0x9539263f4861812B08C37Bb3cB6603c771d6530b) — source verified
 - Failure sink: `0xF4436Ae58d3Cc4F35dc5D38F56DBBa959230285B`
-
-No public frontend URL is documented here.
 
 ## Verified testnet evidence
 
@@ -220,7 +232,6 @@ Full runbook, including pre-demo checklist and failure-path fallback: [DEMO.md](
 - **VOW does not independently verify real-world truth.**
 - The current frontend covers the full action set, including the dispute path.
 - Dispute Proof and Resolve Dispute render in `ActionPanel.tsx`; the on-chain run recorded in Gate T exercised the happy path only.
-- No public frontend URL is currently documented.
 - Solidity testing is documented through both local Foundry and the Docker-based Foundry workflow.
 
 These are submitted-scope limitations, not claims that the contract's tested dispute logic is absent.

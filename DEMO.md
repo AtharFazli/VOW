@@ -22,7 +22,7 @@ Target duration: 3–5 minutes.
 
 Primary archived demo does not require funded wallets. Connect a wallet on Bohr Testnet when showing wallet-specific My Vows or claimable state; direct VOW #1 reads and archived evidence do not require a funded wallet. No new transaction is required.
 
-No public frontend URL is documented; use the local URL printed by Next.js when running the frontend.
+The live frontend is at [https://vowprotocol.web.id](https://vowprotocol.web.id). To run it yourself instead, use the local URL printed by Next.js.
 
 Start locally only when needed:
 

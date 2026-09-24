@@ -16,12 +16,12 @@ requirement is still open. Live evidence:
 | # | Requirement | Audited 20 Sep | Now | Evidence |
 | --- | --- | --- | --- | --- |
 | 1 | Contract address on BOT Chain | MISSING | **MET** | `0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4` — deploy tx `0x694234a9…320a7` status `0x1`, block `0x16fa844`, source verified on `scan.botchain.ai` (`file_path` `src/Vow.sol`) |
-| 2 | Live website on a real domain | MISSING | **STILL MISSING** | `vowprotocol.web.id` does not resolve. Cloudflare DoH: `EDE(22) No Reachable Authority`, `EDE(23) 103.25.222.114:53 returned REFUSED`. No public URL is documented. |
+| 2 | Live website on a real domain | MISSING | **MET** | `vowprotocol.web.id` resolves (A `216.198.79.1`) and serves the mainnet build: `GET /` → 200, `<title>VOW: Collateralized Promises</title>`, HTML carries `BOT Chain Mainnet`, `0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4`, and 0 occurrences of the Bohr explorer. `Vercel` commit status on `fa18f51` = `success`; was `failure` (Vercel Root Directory was unset). Apex and `http://` both 301 to `https://www.vowprotocol.web.id`. |
 | 3 | GitHub repo with `.sol` + README | BROKEN (main empty) | **MET** | `origin/main` = `be79075`, 20 commits; `.sol` and `README.md` present on the default branch |
 | 4 | X post tagging @BOTChain_ai | MISSING | not re-checked | outside repository scope |
 | 5 | 5 posts in the 30 days before submission | IMPOSSIBLE | unchanged | window closed |
-| 6 | Mainnet launch announcement | MISSING | blocked on #2 | needs a live URL to announce |
-| 7 | BOT Chain branding on-site | code ready | code ready, + badge | `SiteFooter.tsx` links the mainnet contract on `scan.botchain.ai` |
+| 6 | Mainnet launch announcement | MISSING | **unblocked, not done** | The dependency is gone: mainnet is live and the site is public, so an announcement can now be published. No announcement content exists on the site yet (checked — no `announce`/`launch`/`blog`/`news` section in the live HTML). |
+| 7 | BOT Chain branding on-site | code ready | **MET** | `SiteFooter.tsx` links the mainnet contract on `scan.botchain.ai`; confirmed in the live HTML (`Powered by BOT Chain` ×2, `bot-chain-logo` ×4, `scan.botchain.ai` ×6, `scan.bohr.life` ×0) |
 
 - **Blocker 1 resolved.** `main` carries the full project; the default branch a judge
   lands on is no longer empty.
@@ -29,28 +29,33 @@ requirement is still open. Live evidence:
   correct: `failureSink()` → `0x8d9165F2eDF3Ec10659A0762112DE9e007619aE7` (matches the
   constructor argument), `nextVowId()` → `0`. Deployer balance is now `0.03942662 BOT`
   (was `0.01474882`), so the funding shortfall recorded below is closed.
-- **Requirement 2 is the remaining open item.** The production build now targets mainnet
-  by default (committed `frontend/.env.production`), but a build that no one can reach is
-  still not a live website. Publishing it to a resolving domain is what closes #2 and
-  unblocks #6.
+- **Requirement 2 is now met.** The production build targets mainnet by default
+  (committed `frontend/.env.production`) and is live at `https://vowprotocol.web.id`.
+  Vercel's status on `fa18f51` is `success`; the earlier failures were caused by the
+  Vercel project having no Root Directory set, so it tried to install and build at the
+  repo root, where there is no `package.json`. Reproduced and confirmed.
+- **Requirement 6 is unblocked.** It was blocked on #2; that dependency is gone. The
+  announcement itself has not been published yet, so the item is still open — but nothing
+  in the repo blocks it now.
+- **Requirements 4 and 5 remain outside repository scope and unresolved.** #5's window has
+  closed; #4 needs an X account that does not exist.
 
 ---
 
 ## Verdict
 
-**Not submittable today.** Two of the seven required items are missing entirely, one is
-broken by a repo setting, and one requirement is now mathematically impossible to satisfy
-in full.
+**Submittable on every item the repository controls.** All five repo-controlled
+requirements are met. Two social requirements are not, and no code change fixes them.
 
 | # | Requirement | Status |
 | --- | --- | --- |
-| 1 | Contract address on BOT Chain | **MISSING** — not deployed to mainnet |
-| 2 | Live website on a real domain | **MISSING** — no public URL exists |
-| 3 | GitHub repo with `.sol` + README | **BROKEN** — default branch is empty |
+| 1 | Contract address on BOT Chain | **MET** — `0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4`, source verified on `scan.botchain.ai` |
+| 2 | Live website on a real domain | **MET** — `https://vowprotocol.web.id` (canonical `www`), 200, mainnet build |
+| 3 | GitHub repo with `.sol` + README | **MET** — `origin/main` carries `.sol`, `README.md`, and the frontend |
 | 4 | X post tagging @BOTChain_ai | **MISSING** — no X account exists |
 | 5 | 5 posts in the 30 days before submission | **IMPOSSIBLE** — window already closed |
-| 6 | Mainnet launch announcement | **MISSING** — depends on #1 and #2 |
-| 7 | BOT Chain branding on-site | Code ready — needs a live site |
+| 6 | Mainnet launch announcement | **OPEN** — unblocked now that #2 is met; nothing published yet |
+| 7 | BOT Chain branding on-site | **MET** — footer badge and `scan.botchain.ai` contract link confirmed live |
 
 ---
 
@@ -106,15 +111,16 @@ marks the item missing.
 
 Fix: point `main` at the submission commit and push. Nothing else changes.
 
-### README has no "Deployment" section
+### README has no "Deployment" section (resolved)
 
 Requirement #3 asks for a `Deployment` section naming both the testnet and mainnet
-contract addresses. The README's `## Network and deployment` section currently lists
-Bohr testnet only, has no mainnet address, and ends with the line:
+contract addresses. The README's `## Network and deployment` section previously listed
+Bohr testnet only and ended with the line:
 
 > No public frontend URL is documented here.
 
-That line is accurate, and it is also a direct admission that requirement #2 is unmet.
+That section now names the live frontend URL and both networks with their chain IDs, RPCs,
+explorers, contracts, and failure sinks.
 
 ---
 
@@ -159,18 +165,22 @@ broadcasting.
 
 ---
 
-## Blocker 3 — No live website
+## Blocker 3 — No live website (resolved)
 
-`github.com/AtharFazli/VOW` has `homepage: None`. No deployment URL appears anywhere in
-README, DEMO.md, or the submission checklist. The only URLs in the project are GitHub and
-explorer links.
+`github.com/AtharFazli/VOW` previously had `homepage: None` and no deployment URL anywhere
+in README, DEMO.md, or the submission checklist.
 
-Requirement #2 needs a live domain (the $1–$1.50 first-year tier is explicitly accepted
+Requirement #2 needed a live domain (the $1–$1.50 first-year tier is explicitly accepted
 and reimbursed). Requirement #7 (BOT Chain branding on-site) and requirement #6 (launch
-announcement on "your own site") both depend on this existing.
+announcement on "your own site") both depended on this.
 
-The frontend is deployable as-is — it is a static-friendly Next.js app with no server-only
-features. It builds clean. It just has nowhere to live.
+**Resolved.** `vowprotocol.web.id` resolves and serves the mainnet build:
+`GET /` → 200, apex and `http://` 301 to `https://www.vowprotocol.web.id`, all app routes
+200, `/nonexistent-page` 404, live HTML carries the BOT Chain badge and the mainnet
+contract link and zero Bohr-explorer links. The earlier Vercel build failures were caused
+by the project having no Root Directory set — Vercel installed and built at the repo root,
+where there is no `package.json`. Setting Root Directory to `frontend` fixed it
+(`npm ci` → EUSAGE and `npm run build` → ENOENT at root; both clean in `frontend/`).
 
 ---
 

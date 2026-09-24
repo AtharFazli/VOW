@@ -211,7 +211,7 @@ Stated plainly because judges should not have to discover them:
   happy path (Gate T) exercised neither, so this path is evidenced by the
   frontend unit tests and the Solidity suite rather than by a two-wallet dispute
   run on Bohr Chain.
-- No public frontend URL exists. The frontend is verified locally.
+- The frontend is live at [https://vowprotocol.web.id](https://vowprotocol.web.id) and targets BOT Chain Mainnet by default (committed `frontend/.env.production`). It also runs locally.
 - Out of scope for this build: tokens, oracles, DAOs, NFTs, chat, multi-party
   commitments, unequal collateral, admin override, and upgradeable proxies.
 
@@ -573,4 +573,4 @@ cd frontend && npm test && npm run lint && npm run build
 | Submitting a link to an unpushed branch | Judge sees a dead or misleading link | Step 8, decide the frozen commit |
 | Video has no public URL | Submission incomplete | Upload before submitting |
 | Mainnet deploy slips past the deadline | No mainnet address to show | Resolved — mainnet deployed and verified; the testnet deployment remains as a fallback evidence path |
-| No public frontend URL | Judges cannot click through the app | Archive the demo video and the transaction table as the judging path, as `DEMO.md` already specifies |
+| No public frontend URL | Judges cannot click through the app | Resolved — frontend is live at `https://vowprotocol.web.id` (canonical `https://www.vowprotocol.web.id`), serving the mainnet build |
