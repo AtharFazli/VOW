@@ -13,8 +13,12 @@ export default function VowPage() {
 
   const vowId = useMemo(() => {
     if (!raw) return null
-    const n = BigInt(raw)
-    return n >= 0n ? n : null
+    try {
+      const n = BigInt(raw)
+      return n >= 0n ? n : null
+    } catch {
+      return null
+    }
   }, [raw])
 
   return (
