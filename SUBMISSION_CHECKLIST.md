@@ -204,9 +204,13 @@ Stated plainly because judges should not have to discover them:
 - VOW does not independently verify real-world truth. Humans judge proof through
   counterparty review or the pre-agreed arbiter. The contract enforces custody,
   authorization, deadlines, and settlement. That split is the trust boundary.
-- The submitted frontend exposes the happy path. The contract's dispute and
-  arbiter-resolution logic exists and is Solidity-tested, but complete
-  Dispute/Resolve UI controls are not exposed in the submitted frontend.
+- The submitted frontend exposes the full action set, including the dispute path.
+  A participant can Dispute Proof (a reason is required by the contract), and a
+  configured arbiter can Resolve Dispute with an Uphold or Reject choice per
+  disputed participant. Both render in `ActionPanel.tsx`. The recorded on-chain
+  happy path (Gate T) exercised neither, so this path is evidenced by the
+  frontend unit tests and the Solidity suite rather than by a two-wallet dispute
+  run on Bohr Chain.
 - No public frontend URL exists. The frontend is verified locally.
 - Out of scope for this build: tokens, oracles, DAOs, NFTs, chat, multi-party
   commitments, unequal collateral, admin override, and upgradeable proxies.
