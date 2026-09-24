@@ -153,3 +153,6 @@ vite.config.ts.timestamp-*
 foundry.lock
 frontend/AGENTS.md
 frontend/CLAUDE.md
+
+# Local brag/demo video composition assets (not part of the submission tree)
+brag-output/

@@ -1,4 +1,0 @@
-Trust is good. Collateral is better.
-
-VOW: two people lock equal BOT collateral behind a promise, submit proof, review
-each other, and a contract settles it on fixed rules. Live on BOT Chain.
