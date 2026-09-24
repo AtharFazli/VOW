@@ -34,15 +34,15 @@ function TxStatus({ phase, txHash, error, explorerUrl }: {
     )
   }
   return (
-    <div className="mt-3 flex items-center gap-2">
-      <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+    <div className="mt-3 flex items-center gap-2" aria-busy="true">
+      <div className="h-3 w-40 animate-pulse rounded bg-zinc-800" />
       <span className="text-xs text-zinc-400">
         {phase === 'simulating' && 'Simulating…'}
         {phase === 'wallet' && 'Waiting for wallet…'}
-        {phase === 'submitted' && 'Submitted — waiting for confirmation…'}
+        {phase === 'submitted' && 'Submitted. Waiting for confirmation…'}
         {phase === 'confirming' && 'Confirming…'}
       </span>
-      {txHash && <a href={`${VOW_CHAIN.blockExplorers.default.url}/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-xs text-zinc-500 hover:text-zinc-300 transition">↗</a>}
+      {txHash && <a href={`${VOW_CHAIN.blockExplorers.default.url}/tx/${txHash}`} target="_blank" rel="noopener noreferrer" className="text-xs text-zinc-400 hover:text-zinc-300 transition">↗</a>}
     </div>
   )
 }
@@ -93,44 +93,44 @@ export function ActionPanel({
   if (!hasAction) {
     return (
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Actions</h2>
-        <p className="text-sm text-zinc-500">No actions available for your wallet in current state.</p>
+        <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Actions</h2>
+        <p className="text-sm text-zinc-400">No actions available for your wallet in current state.</p>
       </section>
     )
   }
 
   return (
     <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4">
-      <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide">Actions</h2>
+      <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide">Actions</h2>
 
       {has('accept') && <div>
-        <p className="text-xs text-zinc-500 mb-2">Accept this VOW by locking {formatStake(vow.stake)} BOT as your stake.</p>
-        <ActionButton label={`Accept — Lock ${formatStake(vow.stake)}`} onClick={() => execute('accept', accept)} loading={busy} />
+        <p className="text-xs text-zinc-400 mb-2">Accept this VOW by locking {formatStake(vow.stake)} BOT as your stake.</p>
+        <ActionButton label="Accept VOW" onClick={() => execute('accept', accept)} loading={busy} />
         <TxStatus {...accept} />
       </div>}
 
       {has('submitProof') && <div>
-        <p className="text-xs text-zinc-500 mb-2">Submit your proof of completion.</p>
+        <p className="text-xs text-zinc-400 mb-2">Submit your proof of completion.</p>
         <input type="text" value={proofUri} onChange={e => setProofUri(e.target.value)} placeholder="Proof URI (e.g. https://…)" disabled={busy}
-          className="mb-2 w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500" />
+          className="mb-2 w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500" />
         <ActionButton label="Submit Proof" onClick={() => execute('submitProof', submitProof, proofUri)} loading={busy} disabled={!proofUri.trim()} />
         <TxStatus {...submitProof} />
       </div>}
 
       {has('approve') && <div>
-        <p className="text-xs text-zinc-500 mb-2">Approve counterparty&apos;s proof of completion.</p>
+        <p className="text-xs text-zinc-400 mb-2">Approve counterparty&apos;s proof of completion.</p>
         <ActionButton label="Approve Proof" onClick={() => execute('approve', approve)} loading={busy} />
         <TxStatus {...approve} />
       </div>}
 
       {has('finalize') && <div>
-        <p className="text-xs text-zinc-500 mb-2">Settle this VOW and distribute stakes.</p>
+        <p className="text-xs text-zinc-400 mb-2">Settle this VOW and distribute stakes.</p>
         <ActionButton label="Finalize VOW" onClick={() => execute('finalize', finalize)} loading={busy} />
         <TxStatus {...finalize} />
       </div>}
 
       {has('claim') && <div>
-        <p className="text-xs text-zinc-500 mb-2">Withdraw your claimable {formatStake(claimable)} BOT.</p>
+        <p className="text-xs text-zinc-400 mb-2">Withdraw your claimable {formatStake(claimable)} BOT.</p>
         <ActionButton label="Withdraw" onClick={() => execute('withdraw', withdraw)} loading={busy} />
         <TxStatus {...withdraw} />
       </div>}

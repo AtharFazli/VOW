@@ -28,7 +28,7 @@ function StatusBadge({ vow, role }: { vow: VowData; role: VowRole }) {
         {globalLabel}
       </span>
       {myStatus !== null && (
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-zinc-400">
           You: {PARTICIPANT_STATUS_LABEL[myStatus]}
         </span>
       )}
@@ -68,7 +68,7 @@ export function MyVowCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-semibold text-white">VOW #{id.toString()}</span>
-            <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-500 uppercase">
+            <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-400 uppercase">
               {role}
             </span>
             {needsAction && (
@@ -82,7 +82,7 @@ export function MyVowCard({
 
           <p className="mt-2 text-xs text-zinc-400 line-clamp-1">{promise}</p>
 
-          <div className="mt-2 flex items-center gap-3 text-[11px] text-zinc-500">
+          <div className="mt-2 flex items-center gap-3 text-[11px] text-zinc-400">
             <span>{formatStake(vow.stake)}</span>
             <span>·</span>
             <span>{shortAddr(counterparty)}</span>

@@ -71,7 +71,7 @@ export function useVowWrite() {
 
       const receipt = await waitForTransactionReceipt(config, { hash, chainId: VOW_CHAIN.id })
       if (receipt.status !== 'success') {
-        throw new Error('Transaction reverted on Bohr Testnet')
+        throw new Error(`Transaction reverted on ${VOW_CHAIN.name}`)
       }
 
       const explorerUrl = `${VOW_CHAIN.blockExplorers.default.url}/tx/${hash}`

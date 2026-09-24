@@ -117,12 +117,17 @@ export default function MyVowsPage() {
         <h1 className="text-2xl font-bold tracking-tight mb-6">My Vows</h1>
 
         {!isConnected ? (
-          <p className="text-sm text-zinc-500">Connect wallet to see your vows.</p>
+          <p className="text-sm text-zinc-400">Connect wallet to see your vows.</p>
         ) : wrongChain ? (
-          <p className="text-sm text-amber-400">Switch to Bohr Testnet to view your vows.</p>
+          <p className="text-sm text-amber-400">Switch to {VOW_CHAIN.name} to view your vows.</p>
         ) : loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+          <div className="space-y-6" aria-busy="true" aria-label="Loading your VOWs">
+            <div className="h-4 w-28 animate-pulse rounded bg-zinc-800" />
+            <div className="space-y-3">
+              <div className="h-28 animate-pulse rounded-2xl bg-zinc-900/70" />
+              <div className="h-28 animate-pulse rounded-2xl bg-zinc-900/70" />
+              <div className="h-28 animate-pulse rounded-2xl bg-zinc-900/70" />
+            </div>
           </div>
         ) : error ? (
           <div className="rounded-lg border border-red-800/50 bg-red-950/30 p-4">
@@ -130,7 +135,7 @@ export default function MyVowsPage() {
           </div>
         ) : cards.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-zinc-500 mb-4">No vows yet.</p>
+            <p className="text-zinc-400 mb-4">No vows yet.</p>
             <Link
               href="/create"
               className="inline-block rounded-[10px] bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-zinc-200"
@@ -142,7 +147,7 @@ export default function MyVowsPage() {
           <div className="space-y-8">
             {groups.map((group) => (
               <div key={group.label}>
-                <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">
+                <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">
                   {group.label}
                 </h2>
                 <div className="space-y-3">

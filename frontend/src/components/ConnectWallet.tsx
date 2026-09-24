@@ -1,7 +1,7 @@
 'use client'
 
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi'
-import { bohrTestnet } from '@/lib/chain'
+import { VOW_CHAIN } from '@/lib/contract'
 
 export function ConnectWallet() {
   const { address, isConnected, chain } = useAccount()
@@ -9,7 +9,7 @@ export function ConnectWallet() {
   const { disconnect } = useDisconnect()
   const { switchChain, isPending: isSwitching } = useSwitchChain()
 
-  const wrongChain = isConnected && chain?.id !== bohrTestnet.id
+  const wrongChain = isConnected && chain?.id !== VOW_CHAIN.id
   const short = address
     ? `${address.slice(0, 6)}...${address.slice(-4)}`
     : null
@@ -19,11 +19,11 @@ export function ConnectWallet() {
       <div className="flex items-center gap-3">
         {wrongChain ? (
           <button
-            onClick={() => switchChain({ chainId: bohrTestnet.id })}
+            onClick={() => switchChain({ chainId: VOW_CHAIN.id })}
             disabled={isSwitching}
             className="rounded-[10px] bg-amber-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-700 disabled:opacity-50"
           >
-            {isSwitching ? 'Switching...' : 'Switch to Bohr Testnet'}
+            {isSwitching ? 'Switching...' : `Switch to ${VOW_CHAIN.name}`}
           </button>
         ) : (
           <span className="rounded-full border border-emerald-700 bg-emerald-900/40 px-3 py-1 text-xs text-emerald-400">

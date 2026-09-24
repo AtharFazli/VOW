@@ -118,8 +118,10 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+      <div className="space-y-6 py-10" aria-busy="true" aria-label="Loading VOW">
+        <div className="h-8 w-56 animate-pulse rounded bg-zinc-800" />
+        <div className="h-40 animate-pulse rounded-2xl bg-zinc-900/70" />
+        <div className="h-24 animate-pulse rounded-2xl bg-zinc-900/70" />
       </div>
     )
   }
@@ -128,7 +130,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
     return (
       <div className="rounded-2xl border border-red-800/50 bg-red-950/30 p-8 text-center">
         <p className="text-sm text-red-400">Failed to read VOW #{vowId.toString()} from contract.</p>
-        <p className="mt-2 text-xs text-zinc-500">Check Bohr Testnet RPC or try again.</p>
+        <p className="mt-2 text-xs text-zinc-400">Check {VOW_CHAIN.name} RPC or try again.</p>
       </div>
     )
   }
@@ -138,9 +140,9 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
   if (nextVowId !== undefined && vowId >= nextVowId) {
     return (
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-        <p className="text-4xl font-bold text-zinc-700">VOW #{vowId.toString()}</p>
-        <p className="mt-3 text-sm text-zinc-500">This VOW does not exist yet.</p>
-        <p className="mt-1 text-xs text-zinc-600">
+        <p className="text-4xl font-bold text-zinc-500">VOW #{vowId.toString()}</p>
+        <p className="mt-3 text-sm text-zinc-400">This VOW does not exist yet.</p>
+        <p className="mt-1 text-xs text-zinc-400">
           Next VOW ID: {nextVowId.toString()}
         </p>
       </div>
@@ -150,7 +152,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
   if (!vow) {
     return (
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-        <p className="text-sm text-zinc-500">Loading VOW data...</p>
+        <p className="text-sm text-zinc-400">Loading VOW data...</p>
       </div>
     )
   }
@@ -159,8 +161,8 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
   if (vow.creator === '0x0000000000000000000000000000000000000000') {
     return (
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-        <p className="text-4xl font-bold text-zinc-700">VOW #{vowId.toString()}</p>
-        <p className="mt-3 text-sm text-zinc-500">This VOW no longer exists on-chain.</p>
+        <p className="text-4xl font-bold text-zinc-500">VOW #{vowId.toString()}</p>
+        <p className="mt-3 text-sm text-zinc-400">This VOW no longer exists on-chain.</p>
       </div>
     )
   }
@@ -177,22 +179,22 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
           <h1 className="text-3xl font-bold tracking-tight">VOW #{vowId.toString()}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <StatusBadge label={VOW_STATUS_LABEL[vow.status]} variant={vowStatusVariant(vow.status)} />
-            <span className="text-xs text-zinc-600">·</span>
-            <span className="text-xs text-zinc-500 capitalize">{role}</span>
+            <span className="text-xs text-zinc-400">·</span>
+            <span className="text-xs text-zinc-400 capitalize">{role}</span>
           </div>
         </div>
       </div>
 
       {/* Promises */}
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">Promises</h2>
+        <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-4">Promises</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-zinc-600 mb-1">Creator Promise</p>
+            <p className="text-xs text-zinc-400 mb-1">Creator Promise</p>
             <p className="text-sm text-zinc-200">{vow.creatorPromise || '—'}</p>
           </div>
           <div>
-            <p className="text-xs text-zinc-600 mb-1">Partner Promise</p>
+            <p className="text-xs text-zinc-400 mb-1">Partner Promise</p>
             <p className="text-sm text-zinc-200">{vow.partnerPromise || '—'}</p>
           </div>
         </div>
@@ -200,14 +202,14 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
 
       {/* Collateral */}
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">Collateral</h2>
+        <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-4">Collateral</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-zinc-600 mb-1">Stake per participant</p>
+            <p className="text-xs text-zinc-400 mb-1">Stake per participant</p>
             <p className="text-lg font-semibold text-white">{formatStake(vow.stake)}</p>
           </div>
           <div>
-            <p className="text-xs text-zinc-600 mb-1">Total locked</p>
+            <p className="text-xs text-zinc-400 mb-1">Total locked</p>
             <p className="text-lg font-semibold text-white">{formatStake(vow.stake * 2n)}</p>
           </div>
         </div>
@@ -215,7 +217,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
 
       {/* Timeline */}
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">Timeline</h2>
+        <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-4">Timeline</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: 'Accept by', value: vow.acceptDeadline },
@@ -224,7 +226,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
             { label: 'Dispute by', value: vow.disputeDeadline },
           ].map((d) => (
             <div key={d.label}>
-              <p className="text-xs text-zinc-600 mb-1">{d.label}</p>
+              <p className="text-xs text-zinc-400 mb-1">{d.label}</p>
               <p className="text-sm text-zinc-300">{formatDeadline(d.value)}</p>
             </div>
           ))}
@@ -233,7 +235,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
 
       {/* Participants */}
       <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">Participants</h2>
+        <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-4">Participants</h2>
         <div className="space-y-3">
           {[
             { label: 'Creator', addr: vow.creator, status: vow.creatorStatus },
@@ -242,7 +244,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
           ].map((p) => (
             <div key={p.label} className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-500 w-16">{p.label}</span>
+                <span className="text-xs text-zinc-400 w-16">{p.label}</span>
                 <a
                   href={`${VOW_CHAIN.blockExplorers.default.url}/address/${p.addr}`}
                   target="_blank"
@@ -267,11 +269,11 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
       {/* Proof */}
       {(vow.creatorProofURI || vow.partnerProofURI) && (
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-          <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-4">Proof</h2>
+          <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-4">Proof</h2>
           <div className="space-y-3">
             {vow.creatorProofURI && (
               <div>
-                <p className="text-xs text-zinc-600 mb-1">Creator Proof</p>
+                <p className="text-xs text-zinc-400 mb-1">Creator Proof</p>
                 {creatorProof.href ? (
                   <a href={creatorProof.href} target="_blank" rel="noopener noreferrer" className="text-sm text-amber-400 hover:text-amber-300 transition break-all">
                     {creatorProof.label}
@@ -283,7 +285,7 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
             )}
             {vow.partnerProofURI && (
               <div>
-                <p className="text-xs text-zinc-600 mb-1">Partner Proof</p>
+                <p className="text-xs text-zinc-400 mb-1">Partner Proof</p>
                 {partnerProof.href ? (
                   <a href={partnerProof.href} target="_blank" rel="noopener noreferrer" className="text-sm text-amber-400 hover:text-amber-300 transition break-all">
                     {partnerProof.label}
@@ -304,13 +306,13 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
           <div className="space-y-3">
             {vow.creatorDisputeReason && (
               <div>
-                <p className="text-xs text-zinc-600 mb-1">Creator Reason</p>
+                <p className="text-xs text-zinc-400 mb-1">Creator Reason</p>
                 <p className="text-sm text-amber-300/80">{vow.creatorDisputeReason}</p>
               </div>
             )}
             {vow.partnerDisputeReason && (
               <div>
-                <p className="text-xs text-zinc-600 mb-1">Partner Reason</p>
+                <p className="text-xs text-zinc-400 mb-1">Partner Reason</p>
                 <p className="text-sm text-amber-300/80">{vow.partnerDisputeReason}</p>
               </div>
             )}
@@ -320,9 +322,9 @@ export function VowDetail({ vowId }: { vowId: bigint }) {
 
       {chainTimeLoading || !connected ? (
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-          <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Actions</h2>
-          <p className="text-sm text-zinc-500">
-            {chainTimeLoading ? 'Checking Bohr network time…' : 'Connect wallet to see available actions.'}
+          <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Actions</h2>
+          <p className="text-sm text-zinc-400">
+            {chainTimeLoading ? `Checking ${VOW_CHAIN.name} network time…` : 'Connect wallet to see available actions.'}
           </p>
         </section>
       ) : (

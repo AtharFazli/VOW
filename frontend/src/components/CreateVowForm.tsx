@@ -27,10 +27,10 @@ const INITIAL: CreateVowForm = {
 function Input({ label, error, ...props }: { label: string; error?: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
-      <label className="block text-xs text-zinc-500 mb-1">{label}</label>
+      <label className="block text-xs text-zinc-400 mb-1">{label}</label>
       <input
         {...props}
-        className={`w-full rounded-lg border bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 ${
+        className={`w-full rounded-lg border bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500 ${
           error ? 'border-red-600' : 'border-zinc-700'
         } ${props.className ?? ''}`}
       />
@@ -158,7 +158,7 @@ export function CreateVowForm() {
             View transaction ↗
           </a>
         )}
-        <p className="mt-2 text-xs text-zinc-500">Redirecting to VOW detail…</p>
+        <p className="mt-2 text-xs text-zinc-400">Redirecting to VOW detail…</p>
       </div>
     )
   }
@@ -179,7 +179,7 @@ export function CreateVowForm() {
 
       {/* Counterparty */}
       <section>
-        <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Counterparty</h3>
+        <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Counterparty</h3>
         <Input
           label="Partner Wallet"
           placeholder="0x..."
@@ -192,7 +192,7 @@ export function CreateVowForm() {
 
       {/* Promises */}
       <section>
-        <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Promises</h3>
+        <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Promises</h3>
         <div className="space-y-3">
           <Input
             label="Your Promise"
@@ -215,7 +215,7 @@ export function CreateVowForm() {
 
       {/* Collateral */}
       <section>
-        <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Collateral</h3>
+        <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Collateral</h3>
         <Input
           label="Stake (BOT)"
           placeholder="0.01"
@@ -230,7 +230,7 @@ export function CreateVowForm() {
 
       {/* Timeline */}
       <section>
-        <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Timeline</h3>
+        <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Timeline</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Accept Deadline"
@@ -265,14 +265,14 @@ export function CreateVowForm() {
             disabled={!canSubmit}
           />
         </div>
-        <p className="mt-2 text-xs text-zinc-600">
+        <p className="mt-2 text-xs text-zinc-400">
           Accept &lt; Delivery &lt; Review &lt; Dispute. Must be in the future.
         </p>
       </section>
 
       {/* Arbiter */}
       <section>
-        <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">Optional Safeguard</h3>
+        <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wide mb-3">Optional Safeguard</h3>
         <Input
           label="Arbiter (optional)"
           placeholder="0x... or leave empty"
@@ -286,21 +286,24 @@ export function CreateVowForm() {
       {/* Submit */}
       <div className="pt-2">
         {!isConnected ? (
-          <p className="text-sm text-zinc-500 text-center">Connect wallet to create a VOW</p>
+          <p className="text-sm text-zinc-400 text-center">Connect wallet to create a VOW</p>
         ) : wrongChain ? (
-          <p className="text-sm text-amber-400 text-center">Switch to Bohr Testnet to create a VOW</p>
+          <p className="text-sm text-amber-400 text-center">Switch to {VOW_CHAIN.name} to create a VOW</p>
         ) : phase === 'validating' ? (
-          <p className="text-sm text-zinc-500 text-center">Validating…</p>
+          <p className="text-sm text-zinc-400 text-center">Validating…</p>
         ) : phase === 'wallet' ? (
           <p className="text-sm text-zinc-400 text-center">Waiting for wallet confirmation…</p>
         ) : phase === 'submitted' || phase === 'confirming' ? (
           <div className="flex flex-col items-center gap-2">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+            <div className="w-full max-w-xs space-y-2" aria-busy="true" aria-label="Submitting transaction">
+              <div className="h-11 animate-pulse rounded-[10px] bg-zinc-800" />
+              <div className="mx-auto h-3 w-40 animate-pulse rounded bg-zinc-800" />
+            </div>
             {txHash && (
               <a
                 href={`${VOW_CHAIN.blockExplorers.default.url}/tx/${txHash}`}
                 target="_blank" rel="noopener noreferrer"
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition"
+                className="text-xs text-zinc-400 hover:text-zinc-300 transition"
               >
                 Transaction submitted ↗
               </a>

@@ -25,7 +25,7 @@ export function ContractStatus() {
   if (!isConnected) {
     return (
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-        <p className="text-sm text-zinc-500">Connect wallet to read contract state.</p>
+        <p className="text-sm text-zinc-400">Connect wallet to read contract state.</p>
       </div>
     )
   }
@@ -33,7 +33,7 @@ export function ContractStatus() {
   if (wrongChain) {
     return (
       <div className="rounded-2xl border border-amber-800/50 bg-amber-950/30 p-6">
-        <p className="text-sm text-amber-400">Switch to Bohr Testnet to read contract.</p>
+        <p className="text-sm text-amber-400">Switch to {VOW_CHAIN.name} to read contract.</p>
       </div>
     )
   }
@@ -48,7 +48,7 @@ export function ContractStatus() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <p className="text-xs text-zinc-500 mb-1">Total Vows Created</p>
+          <p className="text-xs text-zinc-400 mb-1">Total Vows Created</p>
           {loadingId ? (
             <div className="h-6 w-12 animate-pulse rounded bg-zinc-800" />
           ) : errorId ? (
@@ -59,7 +59,7 @@ export function ContractStatus() {
         </div>
 
         <div>
-          <p className="text-xs text-zinc-500 mb-1">Failure Sink</p>
+          <p className="text-xs text-zinc-400 mb-1">Failure Sink</p>
           {loadingSink ? (
             <div className="h-6 w-24 animate-pulse rounded bg-zinc-800" />
           ) : errorSink ? (
@@ -80,7 +80,7 @@ export function ContractStatus() {
           href={`${VOW_CHAIN.blockExplorers.default.url}/address/${VOW_ADDRESS}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-zinc-500 hover:text-zinc-300 transition"
+          className="text-xs text-zinc-400 hover:text-zinc-300 transition"
         >
           View on explorer ↗
         </a>

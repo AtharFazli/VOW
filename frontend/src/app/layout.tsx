@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
+import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VOW — Collateralized Promises",
+  title: "VOW: Collateralized Promises",
   description:
     "Peer-to-peer commitment protocol. Put BOT behind promises you make to each other.",
 };
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-[#0a0a0a] text-white">
         <Providers>{children}</Providers>
+        <SiteFooter />
       </body>
     </html>
   );

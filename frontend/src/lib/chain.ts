@@ -9,3 +9,13 @@ export const bohrTestnet = defineChain({
     default: { name: 'Bohr Explorer', url: 'https://scan.bohr.life' },
   },
 })
+
+export const botMainnet = defineChain({
+  id: 677,
+  name: 'BOT Chain Mainnet',
+  nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.botchain.ai'] } },
+  blockExplorers: {
+    default: { name: 'BOT Chain Explorer', url: 'https://scan.botchain.ai' },
+  },
+})

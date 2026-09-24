@@ -36,7 +36,7 @@ export default function VowPage() {
       <section className="mx-auto max-w-[760px] px-6 py-10">
         {vowId === null ? (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-            <p className="text-sm text-zinc-500">Invalid VOW ID: {raw ?? '(missing)'}</p>
+            <p className="text-sm text-zinc-400">Invalid VOW ID: {raw ?? '(missing)'}</p>
           </div>
         ) : (
           <VowDetail vowId={vowId} />

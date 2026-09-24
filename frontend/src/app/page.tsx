@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { ConnectWallet } from '@/components/ConnectWallet'
 import { ContractStatus } from '@/components/ContractStatus'
@@ -47,9 +48,9 @@ export default function Home() {
       <section className="mx-auto grid min-h-[calc(100dvh-72px)] max-w-[1200px] items-center gap-14 px-5 py-14 sm:px-8 sm:py-20 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,1.05fr)] lg:gap-20 lg:py-20">
         <div className="max-w-xl">
           <p className="mb-6 font-mono text-xs uppercase tracking-[0.22em] text-amber-400">Collateralized promises</p>
-          <h1 className="max-w-[10ch] text-5xl font-semibold leading-[0.98] tracking-[-0.065em] text-white sm:text-6xl">
+          <h1 className="text-5xl font-semibold leading-[0.98] tracking-[-0.065em] text-white xl:text-6xl">
             Trust is good.
-            <span className="mt-2 block text-zinc-500">Collateral is better.</span>
+            <span className="mt-2 block text-zinc-400">Collateral is better.</span>
           </h1>
           <p className="mt-7 max-w-md text-lg leading-8 text-zinc-300">
             Put BOT behind promises you make to each other.
@@ -68,19 +69,19 @@ export default function Home() {
               View my Vows <span aria-hidden="true" className="ml-2 text-amber-400">↗</span>
             </Link>
           </div>
-          <p className="mt-8 max-w-md text-sm leading-6 text-zinc-500">
-            Built for two people with something real at stake. Not a habit tracker. Not a marketplace.
-          </p>
         </div>
 
         <div className="relative" aria-label="A reciprocal VOW between two participants">
-          <div className="absolute left-1/2 top-1/2 h-px w-[calc(100%-5rem)] -translate-x-1/2 bg-amber-400/35" aria-hidden="true" />
-          <div className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+          {/* ponytail: the connector is a horizontal rule across the middle of a
+              two-column layout; in the stacked mobile layout it would cut
+              through both cards, so it is desktop-only. */}
+          <div className="absolute left-1/2 top-1/2 hidden h-px w-[calc(100%-5rem)] -translate-x-1/2 bg-amber-400/35 sm:block" aria-hidden="true" />
+          <div className="relative grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-6">
             <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 sm:p-7">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">You promise</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">You promise</p>
               <p className="mt-5 min-h-14 text-lg font-medium leading-7 text-white">Ship the frontend</p>
               <div className="mt-6 border-t border-white/10 pt-4">
-                <p className="text-xs text-zinc-500">Collateral</p>
+                <p className="text-xs text-zinc-400">Collateral</p>
                 <p className="mt-1 text-2xl font-semibold tracking-tight text-amber-300">0.01 BOT</p>
               </div>
             </div>
@@ -90,18 +91,38 @@ export default function Home() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-5 sm:p-7">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">They promise</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-400">They promise</p>
               <p className="mt-5 min-h-14 text-lg font-medium leading-7 text-white">Deploy the contract</p>
               <div className="mt-6 border-t border-white/10 pt-4">
-                <p className="text-xs text-zinc-500">Collateral</p>
+                <p className="text-xs text-zinc-400">Collateral</p>
                 <p className="mt-1 text-2xl font-semibold tracking-tight text-amber-300">0.01 BOT</p>
               </div>
             </div>
           </div>
-          <p className="mt-6 text-center text-xs leading-5 text-zinc-500">
+          <p className="mt-6 text-center text-xs leading-5 text-zinc-400">
             Equal collateral. Fixed deadlines. A shared commitment.
           </p>
         </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1200px] px-5 pt-14 sm:px-8 sm:pt-20">
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+          {/* ponytail: real render of this app's own /vow/0 page reading live
+              Bohr testnet state (VOW #0, settled, 0.0200 BOT locked). Not a
+              mockup and not stock photography. Replace with a fresh capture
+              if the detail layout changes. */}
+          <Image
+            src="/vow-app.png"
+            alt="The VOW detail page for VOW #0, showing both promises, the 0.0100 BOT stake per participant, the four deadlines, and both parties marked Success"
+            width={1200}
+            height={1090}
+            className="h-auto w-full"
+            priority
+          />
+        </div>
+        <p className="mt-3 text-center text-xs text-zinc-400">
+          VOW #0 on BOT Chain. Both promises delivered, both stakes settled.
+        </p>
       </section>
 
       <section className="border-y border-white/10 bg-[#0e0e0e]">
@@ -114,12 +135,9 @@ export default function Home() {
             </p>
           </div>
           <div className="mt-12 grid gap-0 border-t border-white/10 sm:grid-cols-2 lg:grid-cols-4">
-            {landingSteps.map((step, index) => (
+            {landingSteps.map((step) => (
               <div key={step.title} className="border-b border-white/10 py-7 sm:px-6 sm:odd:border-r lg:border-b-0 lg:border-r lg:px-7 lg:first:pl-0 lg:last:border-r-0 lg:last:pr-0">
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="text-2xl font-semibold tracking-[-0.04em] text-white">{step.title}</h3>
-                  <span className="font-mono text-xs text-zinc-600" aria-hidden="true">0{index + 1}</span>
-                </div>
+                <h3 className="text-2xl font-semibold tracking-[-0.04em] text-white">{step.title}</h3>
                 <p className="mt-4 max-w-[22ch] text-sm leading-6 text-zinc-400">{step.text}</p>
               </div>
             ))}
@@ -149,7 +167,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-[1200px] gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white">Ready to put something behind it?</h2>
-            <p className="mt-3 text-sm text-zinc-500">Create a reciprocal commitment on BOT Chain.</p>
+            <p className="mt-3 text-sm text-zinc-400">Create a reciprocal commitment on BOT Chain.</p>
           </div>
           <Link
             href="/create"
@@ -162,7 +180,7 @@ export default function Home() {
 
       <section className="mx-auto w-full max-w-[1200px] px-5 pb-12 sm:px-8">
         <ContractStatus />
-        <p className="mt-4 text-center font-mono text-xs text-zinc-600">
+        <p className="mt-4 text-center font-mono text-xs text-zinc-400">
           Contract {VOW_ADDRESS.slice(0, 6)}...{VOW_ADDRESS.slice(-4)} <span aria-hidden="true">|</span> Chain {VOW_CHAIN.id}
         </p>
       </section>

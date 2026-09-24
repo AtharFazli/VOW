@@ -19,8 +19,30 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ponytail: base layer, not bare CSS. An unlayered body rule beats every
+   Tailwind utility regardless of specificity, which silently killed the
+   bg-[#0a0a0a] class on <body> and left white text on a white page whenever
+   the OS was in light mode.
+
+   No font-family here on purpose: this rule wins over Tailwind's
+   --default-font-family, so a hardcoded Arial silently replaced the Geist
+   webfont everywhere. Tailwind's preflight already sets the app font on
+   <html>; body inherits it. */
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+  }
+}
+
+/* ponytail: one global guard instead of a useReducedMotion hook per component.
+   All motion here is CSS-only (spin / pulse), so a media query is the whole
+   fix. Unlayered on purpose: unlayered rules beat every @layer including
+   Tailwind's utilities, so this reliably wins over .animate-spin.
+   Collapses the infinite loops to static, per the reduced-motion rule. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse {
+    animation: none;
+  }
 }
