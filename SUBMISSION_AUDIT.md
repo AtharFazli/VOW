@@ -210,7 +210,7 @@ acceptable, rather than assuming either way.
 
 These hold up and should be submitted as-is:
 
-- **Contract.** `src/Vow.sol`, 118 Forge tests across 9 files, `forge fmt` and
+- **Contract.** `src/Vow.sol`, 118 Forge tests across 8 suites, `forge fmt` and
   `forge build` clean.
 - **On-chain evidence.** VOW #1 completed the full happy path on Bohr testnet — 9
   transaction hashes in the README, all verifiable. Contract balance returns to 0,
@@ -244,21 +244,21 @@ between testnet and mainnet. Re-verified: 115 tests pass across 7 files, ESLint 
 
 ## Minimum path to a valid submission
 
-Ordered by what unblocks the most.
+Ordered by what unblocks the most. Steps 1–4 are done.
 
-1. **Fix the repo default branch.** Point `main` at `c23a4c2` and push. ~2 minutes.
-   Without this, requirement #3 fails and the judge sees an empty repo.
-2. **Add the README `Deployment` section** with both addresses. Do the testnet half now;
-   fill the mainnet half after step 4.
-3. **Buy and deploy the domain.** Requirement #2, and the prerequisite for #6 and #7.
-4. **Top up the deployer by ≥0.05 BOT, set a mainnet `FAILURE_SINK`, deploy, read it back,
-   verify the source.** Requirement #1, and the prerequisite for #6.
+1. ~~**Fix the repo default branch.**~~ Done — `main` carries the full project.
+2. ~~**Add the README `Deployment` section** with both addresses.~~ Done — the section now
+   names the live URL and both networks.
+3. ~~**Buy and deploy the domain.**~~ Done — `https://vowprotocol.web.id` is live.
+4. ~~**Top up the deployer, set a mainnet `FAILURE_SINK`, deploy, read it back, verify the
+   source.**~~ Done — `0x04e6db5BE9861fbEd3E7a4192A3444a7D0e07cb4`, source verified.
 5. **Create the X account and post.** Requirement #4, plus the best available recovery
-   for #5.
-6. **Publish the launch announcement** on the new site. Requirement #6.
+   for #5. Still open, and outside the repository.
+6. **Publish the launch announcement** on the live site. Requirement #6. The dependency is
+   cleared; the announcement itself still needs writing and publishing.
 
-Items 1, 2, and 4 are each under an hour of real work. The scarce resource is the
-remaining 5 days, not the effort.
+What remains is not repo work. Item 5 needs an X account; item 6 needs a page of content
+published on the live site.
 
 ---
 
@@ -266,9 +266,10 @@ remaining 5 days, not the effort.
 
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
-| `main` stays empty | Requirement #3 auto-fails | Step 1, ~2 min |
-| Mainnet not deployed by the 25th | Requirement #1 fails; #6 impossible | Step 4, needs ≥0.05 BOT |
-| Deploy uses the testnet FAILURE_SINK | Mainnet collateral permanently misrouted | Set and read back the sink before broadcasting |
-| No domain | Requirements #2, #6, #7 all fail | Step 3, ~$1.50 |
+| `main` stays empty | Requirement #3 auto-fails | Resolved — `main` carries the full project |
+| Mainnet not deployed by the 25th | Requirement #1 fails; #6 impossible | Resolved — mainnet deployed, source verified, reads back correct |
+| Deploy uses the testnet FAILURE_SINK | Mainnet collateral permanently misrouted | Resolved — mainnet sink is the deployer address, read back on-chain |
+| No domain | Requirements #2, #6, #7 all fail | Resolved — `https://vowprotocol.web.id` live, mainnet build |
 | X account created late | Requirement #5 scored as unmet | Post across separate days; email the organisers |
 | "Verified on Bohr" claimed in the form | Misrepresentation to judges | Verify first, or state testnet-only plainly |
+| Announcement never published | Requirement #6 scores as unmet | Publish on the live site before the deadline |
