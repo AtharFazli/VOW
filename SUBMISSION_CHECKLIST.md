@@ -141,7 +141,7 @@ submitted proof, and after the delivery deadline the second side transitioned to
 | Language | TypeScript `5.9.3` |
 | Tests | Vitest `5.0.0` |
 
-Frontend test suite: **102 tests passed, 0 failed** across 6 files.
+Frontend test suite: **112 tests passed, 0 failed** across 7 files.
 Lint passes. Production build passes.
 
 Pages shipped:
@@ -498,7 +498,7 @@ allows a paragraph.
 > lock equal BOT collateral behind promises they make to each other, submit
 > proof, review each other's proof, and let a smart contract settle the outcome
 > on fixed rules. No admin, no custodian, no database. 118 contract tests and
-> 102 frontend tests pass. Deployed on Bohr Chain with 19 on-chain transactions.
+> 112 frontend tests pass. Deployed on Bohr Chain with 19 on-chain transactions.
 
 ### Long version (about 180 words)
 
@@ -517,7 +517,7 @@ allows a paragraph.
 > People judge proof through counterparty review or a pre-agreed arbiter. That
 > split is the trust boundary, stated openly rather than papered over.
 >
-> Everything is verifiable. 118 contract tests and 102 frontend tests pass. The
+> Everything is verifiable. 118 contract tests and 112 frontend tests pass. The
 > full two-wallet lifecycle, including the failure path where a missed deadline
 > forfeits collateral, was executed on Bohr Chain and all nine transaction
 > receipts are archived in the README. Source is not yet verified on the explorer.
@@ -541,7 +541,7 @@ cd frontend && npm test && npm run lint && npm run build
 ```
 
 - [ ] Contract tests: 118 passed, 0 failed
-- [ ] Frontend tests: 102 passed, 0 failed
+- [ ] Frontend tests: 112 passed, 0 failed
 - [ ] Frontend lint and production build pass
 - [ ] Deployer funded on mainnet (step 1)
 - [ ] Mainnet `FAILURE_SINK` set deliberately and read back (step 2)
